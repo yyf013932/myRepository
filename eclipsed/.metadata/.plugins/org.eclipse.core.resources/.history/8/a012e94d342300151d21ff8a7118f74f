@@ -1,0 +1,90 @@
+package edu.nju.model.impl;
+
+import edu.nju.controller.msgqueue.OperationQueue;
+import edu.nju.model.service.ParameterModelService;
+import edu.nju.network.NetState;
+
+public class ParameterModelImpl extends BaseModel implements
+		ParameterModelService {
+
+	private int maxMine;
+	private int mineNum;
+	private int clientNum = 0;
+	private int hostNum = 0;
+
+	@Override
+	public boolean setMineNum(int num) {
+		// TODO Auto-generated method stub
+		if (NetState.netState.isLocal()) {
+			mineNum = num;
+			maxMine = num;
+
+			super.updateChange(new UpdateMessage("mineNum", mineNum));
+		} else {
+			super.updateChange(new UpdateMessage("mineNum_Online", new int[] {
+					hostNum, clientNum }));
+		}
+		return true;
+	}
+
+	public boolean setMine_Online(int client, int host) {
+		this.clientNum = client;
+		this.hostNum = host;
+		return true;
+	}
+
+	public int getHostNum() {
+		return hostNum;
+	}
+
+	public int getClientNum() {
+		return clientNum;
+	}
+
+	@Override
+	public boolean addMineNum() {
+		// TODO Auto-generated method stub
+		if (NetState.netState.isLocal()) {
+			mineNum++;
+
+			if (mineNum > maxMine) {
+				mineNum--;
+				return false;
+			}
+
+			super.updateChange(new UpdateMessage("mineNum", mineNum));
+		} else {
+			if (OperationQueue.netState.isClient())
+				clientNum++;
+			else
+				hostNum++;
+			super.updateChange(new UpdateMessage("mineNum_Online", new int[] {
+					hostNum, clientNum }));
+		}
+		return true;
+	}
+
+	@Override
+	public boolean minusMineNum() {
+		// TODO Auto-generated method stub
+		if (NetState.netState.isLocal()) {
+			mineNum--;
+
+			if (mineNum < 0) {
+				mineNum++;
+				return false;
+			}
+
+			super.updateChange(new UpdateMessage("mineNum", mineNum));
+		} else {
+			if (OperationQueue.netState.isClient())
+				clientNum--;
+			else
+				hostNum--;
+			super.updateChange(new UpdateMessage("mineNum_Online", new int[] {
+					hostNum, clientNum }));
+		}
+		return true;
+	}
+
+}

@@ -1,0 +1,37 @@
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+import yyf.gui.SwingConsole;
+
+
+public class MouseMotionPractice extends JFrame{
+	JLabel label=new JLabel();
+	public void run(){
+		SwingConsole.run(this,500,300);
+		add(label);
+		addMouseMotionListener(new MouseMotionListener() {
+			
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				// TODO 自动生成的方法存根
+				
+			}
+			
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				// TODO 自动生成的方法存根
+				label.setText(e.getPoint().toString());
+				
+			}
+		});
+	}
+	
+	public static void main(String[]args){
+		MouseMotionPractice mos=new MouseMotionPractice();
+		mos.run();
+	}
+
+}

@@ -1,0 +1,27 @@
+package æ≈π¨∏Ò–°”Œœ∑;
+public class Gamebust {
+public void startgame(){
+	Player [] players=new Player[2];
+	players[0]=new Player();
+	players[1]=new Player();
+	System.out.println("Please input a name for player 1:\n");
+	players[0].getname();
+	System.out.println("Please input a name for player 2:\n");
+	players[1].getname();
+	System.out.println("Player 1 will take the first step.\nLet's fight!!\n");
+	GameSpace gamespace=new GameSpace();
+	int state=0,steps=0,currentplayer=1;
+	while(state==0){		
+		currentplayer=steps%2+1;
+		System.out.println("Please input a location Player "+currentplayer);
+		while(gamespace.setspace(players[steps%2].setlocation())==0);
+		steps++;
+		state=gamespace.checkstate();
+}
+	System.out.println("Player "+currentplayer+players[2-steps%2].name+" wins the game.");
+}
+public static void main(String [] args){
+	Gamebust game=new Gamebust();
+	game.startgame();	
+}
+}

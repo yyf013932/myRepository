@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="将资源“ImageLabel/clicked1.jpg”重命名为“111.jpg”" description="重命名资源“clicked1.jpg”" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="clicked1.jpg" name="111.jpg" stamp="1431162056373" updateReferences="true"/>&#x0A;<refactoring comment="将资源“ImageLabel/clicked2.jpg”重命名为“222.jpg”" description="重命名资源“clicked2.jpg”" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="clicked2.jpg" name="222.jpg" stamp="1431169925777" updateReferences="true"/>
+</session>

@@ -1,0 +1,22 @@
+
+import java.awt.*;
+
+import javax.swing.*;
+public class simpleGUI {
+	public static void main(String[] args){
+		JFrame frame=new JFrame();
+		JButton button=new JButton("Click me!!");
+
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().add(BorderLayout.CENTER,button);
+		frame.getContentPane().add(new Mypaint());
+		class Mypaint extends JPanel{
+			public void paintCompont(Graphics g){
+				g.setColor(Color.red);
+				g.fillOval(100, 100, 50, 90);
+			}
+		}
+		frame.setSize(500,500);
+		frame.setVisible(true);
+	}
+}

@@ -1,0 +1,51 @@
+package swr.sxc.zjs.yyf.game;
+
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.JPanel;
+
+import swr.sxc.zjs.yyf.tools.MusicPlayer;
+
+public class GamePanel extends JPanel {
+	//实现阴影渐变的参数
+	protected float alpha;
+	private Thread changThread;
+	
+	//保存一个Frame的引用
+	protected GameFrame gameFrame;
+	
+	//音乐播放器
+	protected MusicPlayer player;
+	
+	//改变alpha的值
+	public void alphaChange() {
+		if (changThread != null)
+			changThread.stop();
+
+		changThread = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				alpha = 0.5f;
+				for (int i = 50; i > 0; i--) {
+					alpha = (float) i / 100;
+					try {
+						TimeUnit.MILLISECONDS.sleep(5);
+						repaint();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		changThread.start();
+	}
+
+	public GamePanel(GameFrame gameFrame){
+		this.gameFrame=gameFrame;
+	}
+	
+	public GamePanel(){
+		
+	}
+}

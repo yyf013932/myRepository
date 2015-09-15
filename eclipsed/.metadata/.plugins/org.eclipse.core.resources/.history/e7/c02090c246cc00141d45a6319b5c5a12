@@ -1,0 +1,17 @@
+import javax.swing.JFrame;
+import javax.swing.SwingConstants;
+
+import yyf.gui.SwingConsole;
+
+
+public class MouseEventPractice extends JFrame{
+	public void run(){
+		SwingConsole.run(this,500,300);
+	}
+	
+	public static void main(String[]args){
+		MouseEventPractice mo=new MouseEventPractice();
+		mo.run();
+	}
+
+}

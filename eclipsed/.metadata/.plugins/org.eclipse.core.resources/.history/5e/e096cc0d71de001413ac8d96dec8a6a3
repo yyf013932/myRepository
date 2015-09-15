@@ -1,0 +1,147 @@
+package yyf.gui;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+public class ColorRgbValue extends JFrame {
+	static int RED_ = 255, BULE_ = 255, GREEN_ = 255;
+
+	JPanel jp1 = new JPanel();
+	MyDrawer myd = new MyDrawer();
+	JLabel[] labs = new JLabel[3];
+	JTextField[] texs = new JTextField[3];
+
+	public void run() {
+		SwingConsole.run(this, 762, 762);
+		// setLayout(null);
+		setResizable(false);
+		add(myd);
+		myd.addMouseListener(myd);
+		myd.addMouseMotionListener(myd);
+
+		add(BorderLayout.SOUTH, jp1);
+		jp1.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+		Font font = new Font("", Font.CENTER_BASELINE, 20);
+		jp1.add(labs[0] = new JLabel("R:"));
+		jp1.add(texs[0] = new JTextField(String.valueOf(RED_), 2));
+		jp1.add(labs[1] = new JLabel("G:"));
+		jp1.add(texs[1] = new JTextField(String.valueOf(GREEN_), 2));
+		jp1.add(labs[2] = new JLabel("B:"));
+		jp1.add(texs[2] = new JTextField(String.valueOf(BULE_), 2));
+		for (int i = 0; i < 3; i++) {
+			labs[i].setFont(font);
+			texs[i].setFont(font);
+			texs[i].setEditable(false);
+		}
+	}
+
+	public static void main(String[] args) {
+		ColorRgbValue co = new ColorRgbValue();
+		co.run();
+	}
+
+	class MyDrawer extends JPanel implements MouseMotionListener, MouseListener {
+		public int X, Y;
+		private int x = 50, y = 50;
+
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+
+			for (int i = 0; i < 256; i++) {
+				for (int j = 0; j < 256; j++) {
+					g.setColor(new Color(i, j, 255));
+					g.fillRect(x + i * 2, y + j * 2, 2, 2);
+				}
+			}
+			x = y = 50;
+			for (int k = 0; k < 256; k++) {
+				g.setColor(new Color(RED_, GREEN_, k));
+				g.fillRect(x + 562, y + k * 2, 100, 2);
+			}
+			g.setColor(new Color(RED_, GREEN_, BULE_));
+			g.fillRect(50, 620, 662, 60);
+
+			g.setColor(Color.black);
+			g.drawRect(x + RED_ * 2 - 1, y + GREEN_ * 2 - 1, 4, 4);
+			g.drawRect(x + 561, y + BULE_ * 2 - 1, 102, 4);
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO 自动生成的方法存根
+			int x1 = e.getX(), y1 = e.getY();
+			if ((x1 >= 50) && (x1 <= 560) && (y1 >= 50) && (y1 <= 560)) {
+				RED_ = (x1 - x) / 2;
+				GREEN_ = (y1 - y) / 2;
+				texs[0].setText(String.valueOf(RED_));
+				texs[1].setText(String.valueOf(GREEN_));
+				repaint();
+			}
+			if ((x1 >= 662) && (x1 <= 762) && (y1 >= 50) && (y1 <= 560)) {
+				BULE_ = (y1 - y) / 2;
+				texs[2].setText(String.valueOf(BULE_));
+				repaint();
+			}
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO 自动生成的方法存根
+
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO 自动生成的方法存根
+
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO 自动生成的方法存根
+
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO 自动生成的方法存根
+
+		}
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			// TODO 自动生成的方法存根
+			int x1 = e.getX(), y1 = e.getY();
+			if ((x1 >= 50) && (x1 <= 560) && (y1 >= 50) && (y1 <= 560)) {
+				RED_ = (x1 - x) / 2;
+				GREEN_ = (y1 - y) / 2;
+				texs[0].setText(String.valueOf(RED_));
+				texs[1].setText(String.valueOf(GREEN_));
+				repaint();
+			}
+			if ((x1 >= 662) && (x1 <= 762) && (y1 >= 50) && (y1 <= 560)) {
+				BULE_ = (y1 - y) / 2;
+				texs[2].setText(String.valueOf(BULE_));
+				repaint();
+			}
+
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			// TODO 自动生成的方法存根
+		}
+	}
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="将类型“yyf.util.Generator”重命名为“CountingGenerator”&#x0D;&#x0A;－ 原始项目：“MyTool”&#x0D;&#x0A;－ 原始元素：“yyf.util.Generator”&#x0D;&#x0A;－ 重命名的元素：“yyf.util.CountingGenerator”&#x0D;&#x0A;－ 更新对已重构元素的引用&#x0D;&#x0A;－ 更新注释和字符串中出现的文本" description="重命名类型“Generator”" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;yyf.util{Generator.java[Generator" matchStrategy="1" name="CountingGenerator" qualified="false" references="true" similarDeclarations="false" stamp="1425644983067" textual="false" version="1.0"/>
+</session>

@@ -1,0 +1,48 @@
+package basestructure;
+
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.util.Random;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import yyf.gui.SwingConsole;
+
+public class AVLTreeTest {
+
+	public static void main(String[] args) {
+		// TODO 自动生成的方法存根
+		final AVLTree<Integer> tree = new AVLTree<>();
+		int i = 11;
+		long a = System.currentTimeMillis();
+		for (int j = 1; j < i; j++) {
+			tree.insert(j);
+		}
+		long b = System.currentTimeMillis();
+		System.out.println("Cost " + (b - a) + "ms" + "\n----t/nlogn="
+				+ (i * Math.log(i)) / (b - a));
+		JFrame frame = new JFrame();
+		SwingConsole.run(frame, 1024, 800);
+		frame.setContentPane(new MyPanel(tree));
+	}
+
+	public static class MyPanel<T extends Comparable<T>> extends JPanel {
+//		private BufferedImage image;
+		public AVLTree<T> tree;
+
+		public MyPanel(AVLTree<T>tree) {
+//			this.image = image;
+			this.tree=tree;
+			setSize(1024, 768);
+		}
+
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			tree.creatTreeImage(g);
+//			g.drawImage(image, getWidth(), getHeight(), null);
+		}
+	}
+
+}

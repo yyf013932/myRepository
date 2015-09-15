@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="将“ALU.claAdder(...)”中的局部变量“C”重命名为“Cb”&#x0D;&#x0A;－ 原始项目：“ALUSimulator”&#x0D;&#x0A;－ 原始元素：“ALU.claAdder(String, String, char).C”&#x0D;&#x0A;－ 重命名的元素：“C”&#x0D;&#x0A;－ 更新对已重构元素的引用" description="重命名局部变量“C”" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;{ALU.java[ALU~claAdder~QString;~QString;~C@C!3440!3552!3514!3514!\[Z!0!false" name="Cb" references="true" stamp="1430229378024" version="1.0"/>
+</session>

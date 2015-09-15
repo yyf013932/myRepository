@@ -1,0 +1,182 @@
+package StoreHouse;
+
+import java.io.*;
+import java.util.*;
+
+public class StoreHouse {
+	ArrayList<Item> list=new ArrayList();
+	
+	//文件存储路径
+	final String FILEPATH="src/storehouse.txt"; 
+	
+	File file=new File(FILEPATH);
+	
+	//生成对象时即读入文件
+	public StoreHouse(){
+		Read();
+	}
+	
+	//读写的方法
+    public void Save(){
+    	try {
+    		file.delete();
+			FileWriter writer=new FileWriter(file);
+			for(Item i:list)
+				writer.write(i.getNumber()+";"+i.getCategory()+";"+i.getName()+";"+i.getModel()+";"+i.getStock()+"\n");
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+    public void Read(){
+    	try {  
+			BufferedReader reader=new BufferedReader(new FileReader(file));
+			while(reader.ready()){
+				String[] str=reader.readLine().split(";");
+				list.add(new Item(Integer.parseInt(str[0]),str[1],str[2],str[3],Integer.parseInt(str[4])));
+			}
+			reader.close();
+		} catch (Exception e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		} 
+    }
+    
+    
+	public void Add(Item item){
+		int sta=0;
+		for(int i=0;i<list.size();i++)
+			if(list.get(i).getNumber()==item.getNumber()){
+				sta=1;
+				break;
+			}
+		if(sta==1)
+//如果已经存在，打印通知
+			System.out.println("仓库中已有该商品，请用Update更新");
+		else{
+//如果没有，直接加入
+			list.add(item);		     
+			System.out.println("已添加到仓库中");
+		}
+	}
+	
+	
+	public void Remove(int Number){
+		int i,sta=0;
+		for(i=0;i<list.size();i++)
+			if(list.get(i).getNumber()==Number){
+				sta=1;
+				break;
+			}
+		if(sta==0)
+			System.out.println("仓库中没有此编号商品");
+		else{
+			list.remove(i);
+			System.out.println("删除成功");
+		}
+	}
+	
+	
+	public void Update(Item item){
+		int i,sta=0;
+		for(i=0;i<list.size();i++)
+			if(list.get(i).getNumber()==item.getNumber()){
+				sta=1;
+				break;
+			}
+		if(sta==0)
+			System.out.println("仓库中没有此编号商品");
+		else{
+			list.get(i).setStock(item.getStock());
+			System.out.println("已更新仓库");
+		}
+			
+	}
+	
+	
+	public void Find(int Number){
+		int i,sta=0;
+		for(i=0;i<list.size();i++)
+			if(list.get(i).getNumber()==Number){
+				sta=1;
+				break;
+			}
+		if(sta==0)
+			System.out.println("仓库中没有此编号商品");
+		else
+			System.out.println(list.get(i).getNumber()+";"+list.get(i).getCategory()+";"+list.get(i).getName()+";"+list.get(i).getModel()+";"+list.get(i).getStock());
+	}
+	
+	
+	public void show(){
+		Collections.sort(list,new Comparator<Item>(){
+			public int compare(Item i1,Item i2){
+				if(i1.getNumber()>i2.getNumber())
+					return 1;
+				else return -1;
+			}
+		});
+		for(Item i:list)
+			System.out.println(i.getNumber()+";"+i.getCategory()+";"+i.getName()+";"+i.getModel()+";"+i.getStock());
+	}
+
+	
+	public void print(){
+		System.out.println("加载成功，请进行操作.");
+		System.out.println("1>>添加(Add)");
+		System.out.println("2>>删除(Remove)");
+		System.out.println("3>>更新(Update)");
+		System.out.println("4>>查找(Find)");
+		System.out.println("5>>显示(Show)");
+		System.out.println("6>>离开并保存(Quit and Save)");
+	}
+	public void start(){
+		print();
+		String[] str1;
+        int sta=1;
+        Scanner sc=new Scanner(System.in);
+        char ch=sc.nextLine().charAt(0);
+        while(sta==1){
+        switch (ch){
+        case '1':{
+        	System.out.println("请输入商品信息，用分号隔开");
+        	str1=sc.nextLine().split(";");
+        	Add(new Item(Integer.parseInt(str1[0]),str1[1],str1[2],str1[3],Integer.parseInt(str1[4])));
+        	break;
+        }
+        case '2':{
+        	System.out.println("请输入商品编号");
+        	Remove(Integer.parseInt(sc.nextLine()));
+        	break;
+        }
+        case '3':{
+        	System.out.println("请输入更新后的商品信息，用分号隔开");
+        	str1=sc.nextLine().split(";");
+        	Update(new Item(Integer.parseInt(str1[0]),str1[1],str1[2],str1[3],Integer.parseInt(str1[4])));
+        	break;
+        	
+        }
+        case '4':{
+        	System.out.println("请输入商品编号");
+        	Find(Integer.parseInt(sc.nextLine()));
+        	break;
+        }
+        case '5':{
+        	show();
+        	break;
+        }
+        case '6':{
+        	Save();
+        	sta=0;
+        }       
+        }
+        ch=sc.nextLine().charAt(0);
+        }
+        sc.close();
+}
+	public  static void main(String[]arg){
+		StoreHouse storehouse=new StoreHouse();
+        storehouse.start();
+        
+	}
+}

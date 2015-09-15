@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="将资源“MyPython/recusiveTest”重命名为“recusiveTest.py”" description="重命名资源“recusiveTest”" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="recusiveTest" name="recusiveTest.py" stamp="1442310249369" updateReferences="true"/>
+</session>

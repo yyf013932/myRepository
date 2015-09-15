@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="将方法“贪吃蛇.SnakeGame.printItself()”重命名为“getOutput”&#x0D;&#x0A;－ 原始项目：“贪吃蛇”&#x0D;&#x0A;－ 原始元素：“贪吃蛇.SnakeGame.printItself()”&#x0D;&#x0A;－ 重命名的元素：“贪吃蛇.SnakeGame.getOutput()”&#x0D;&#x0A;－ 更新对已重构元素的引用" delegate="false" deprecate="false" description="重命名方法“printItself”" flags="589830" id="org.eclipse.jdt.ui.rename.method" input="/src&lt;贪吃蛇{SnakeGame.java[SnakeGame~printItself" name="getOutput" references="true" stamp="1423745241397" version="1.0"/>
+</session>

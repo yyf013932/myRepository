@@ -1,0 +1,42 @@
+package æ≈π¨∏Ò–°”Œœ∑;
+
+import java.util.Scanner;
+
+public class Player {
+	public String name;
+
+	public int setlocation() {
+		int location = 0;
+		System.out.println("Please input a location(forms like A2 B1):");
+		Scanner sc = new Scanner(System.in);
+		String loca = sc.nextLine();
+		char a = loca.charAt(0);
+		char b = loca.charAt(1);
+		switch (a) {
+		case 'A':
+			break;
+		case 'B':
+			location += 3;
+			break;
+		case 'C':
+			location += 6;
+			break;
+		}
+		switch (b) {
+		case '1':
+			break;
+		case '2':
+			location += 1;
+			break;
+		case '3':
+			location += 2;
+			break;
+		}
+		return location;
+	}
+
+	public void getname() {
+		Scanner sc = new Scanner(System.in);
+		name = sc.nextLine();
+	}
+}

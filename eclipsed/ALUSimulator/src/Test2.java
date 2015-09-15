@@ -1,0 +1,13 @@
+public class Test2 {
+
+	public static void main(String[] args) {
+		// TODO 自动生成的方法存根
+		ALU1 alu = new ALU1();
+		String[][] str = new String[][] { { "1000", "0010", "4" },
+				{ "10000", "11100", "5" }, { "10001", "00101", "5" } };
+		for (String[] tem : str) {
+			System.out.println(alu.integerDivision(tem[0], tem[1], new Integer(
+					tem[2])));
+		}
+	}
+}

@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+externalMigrateFromAuthorizationDatabase/isMigrated=true
+migrateFromAuthorizationDatabase/isMigrated=true
+repositories/10c6a7388c0d0015173ba341c3afdb41=10c6a7388c0d0015173ba341c3afdb41;https\://YYF_PC\:8443/svn/MyRepository;https\://YYF_PC\:8443/svn/MyRepository;branches;tags;trunk;true;0ae5ff2d-09d4-694c-93f5-c08a209e96eb;https\://yyf_pc\:8443/svn/MyRepository;;false;;;0
+repositories/90b269978b0d0015173ba341c3afdb41=90b269978b0d0015173ba341c3afdb41;https\://YYF_PC\:8443/svn/MyRepository;https\://YYF_PC\:8443/svn/MyRepository;branches;tags;trunk;true;;;;false;;;0

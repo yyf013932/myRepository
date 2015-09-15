@@ -1,0 +1,5 @@
+package basestructure;
+
+public class AVLTree {
+
+}

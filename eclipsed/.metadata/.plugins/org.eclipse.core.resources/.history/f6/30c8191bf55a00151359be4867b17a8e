@@ -1,0 +1,17 @@
+package test;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
+public class BufferedImageTest {
+	
+	public static BufferedImage getImage(){
+		BufferedImage image=new BufferedImage(1024, 768, BufferedImage.TYPE_INT_RGB);
+		Graphics g=image.getGraphics();
+		g.setColor(Color.black);
+		g.drawRect(10, 10, 20, 20);
+		return image;
+	}
+
+}

@@ -1,0 +1,13 @@
+package basestructure;
+
+public class AVLTreeTest {
+
+	public static void main(String[] args) {
+		// TODO 自动生成的方法存根
+		AVLTree<Integer> tree = new AVLTree<>();
+		for (int i = 10; i > 0; i--)
+			tree.insert(i);
+		System.out.println(tree);
+	}
+
+}

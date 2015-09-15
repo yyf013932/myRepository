@@ -1,0 +1,92 @@
+package swr.sxc.zjs.yyf.game;
+
+import java.awt.AlphaComposite;
+import java.awt.Composite;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import javax.imageio.ImageIO;
+
+import swr.sxc.zjs.yyf.tools.MusicPlayer;
+
+public class IntroductionPanel extends GamePanel {
+	BufferedImage[] images = new BufferedImage[7];
+	BufferedImage currentImage;
+	Thread readImage, changeImage;
+	boolean imageReady;
+
+	public IntroductionPanel(GameFrame gameFrame) {
+		// TODO 自动生成的构造函数存根
+		super(gameFrame);
+		imageReady = false;
+		readImage = new Thread(new ReadImages());
+		readImage.start();
+		changeImage = new Thread(new ChangeImages());
+		changeImage.start();
+	}
+
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		if (!imageReady) {
+			g.drawString("Loading", 550, 400);
+
+		} else {
+			g.drawImage(currentImage, 0, 0, getWidth(), getHeight(), null);
+		}
+		
+		//实现渐变
+		changeShadow(g);
+	}
+
+	// 读取图片
+	private class ReadImages implements Runnable {
+		String filePath = "images/IntroductionPanel/新游戏";
+
+		@Override
+		public void run() {
+			// TODO 自动生成的方法存根
+
+			try {
+				for (int i = 0; i < 7; i++) {
+					images[i] = ImageIO.read(new FileInputStream(filePath
+							+ (i + 1) + ".jpg"));
+				}
+				imageReady = true;
+			} catch (FileNotFoundException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO 自动生成的 catch 块
+				e.printStackTrace();
+			}
+
+		}
+
+	}
+
+	// 改变图片
+	private class ChangeImages implements Runnable {
+
+
+		@Override
+		public void run() {
+			// TODO 自动生成的方法存根
+			for (int i = 0;; i++) {
+				currentImage = images[i % 7];
+				try {
+					TimeUnit.SECONDS.sleep(2);
+					repaint();
+				} catch (InterruptedException e) {
+					// TODO 自动生成的 catch 块
+					e.printStackTrace();
+				}
+			}
+		}
+
+	}
+}

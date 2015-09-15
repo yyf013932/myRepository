@@ -1,0 +1,15 @@
+package swr.sxc.zjs.yyf.game;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+public class Item extends JLabel {
+	JPanel panel;
+	Inventory inven;
+	
+	public Item(Inventory inventory){
+		this.inven=inventory;
+	}
+	
+	
+}

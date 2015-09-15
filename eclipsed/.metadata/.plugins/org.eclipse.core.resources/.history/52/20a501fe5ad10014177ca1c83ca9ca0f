@@ -1,0 +1,34 @@
+import java.awt.FlowLayout;
+
+import javax.swing.*;
+
+import yyf.gui.SwingConsole;
+
+public class Faces extends JFrame{
+
+	private static Icon[]faces;
+	private JButton jb1,jb2=new JButton("Disable");
+	private boolean mad=false;
+	public Faces(){
+		faces=new Icon[]{
+				new ImageIcon("/src/111.jpg"),
+				new ImageIcon("/src/222.jpg"),
+				new ImageIcon("/src/333.jpg"),
+				new ImageIcon("/src/444.jpg"),
+		};
+		jb1=new JButton("JButton",faces[2]);
+		setLayout(new FlowLayout());
+		jb1.setRolloverEnabled(true);
+		jb1.setRolloverIcon(faces[0]);
+		jb1.setPressedIcon(faces[1]);
+		jb1.setDisabledIcon(faces[3]);
+		jb1.setToolTipText("Yow!");
+		add(jb1);
+	}
+	public static void main(String[] args) {
+		// TODO 自动生成的方法存根
+		SwingConsole.run(new Faces(),250,125);
+
+	}
+
+}

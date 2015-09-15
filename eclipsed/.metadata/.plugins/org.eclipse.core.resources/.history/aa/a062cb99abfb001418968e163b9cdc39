@@ -1,0 +1,150 @@
+package swr.sxc.zjs.yyf.game;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+
+import javax.imageio.ImageIO;
+
+public class Panel1 extends GamePanel {
+	// 保存一个panel2的引用
+	private Panel2 panel2;
+
+	private int stage;
+
+	// 监听的多边形区域
+	private static final Polygon DOOR = new Polygon(new int[] { 519, 600, 600,
+			519 }, new int[] { 267, 267, 391, 391 }, 4);
+	private static final Polygon ROBOT = new Polygon(new int[] { 791, 858, 878,
+			817 }, new int[] { 475, 474, 536, 539 }, 4);
+	private static final Polygon KEY1 = new Polygon(new int[] { 456, 504, 500,
+			455 }, new int[] { 486, 487, 496, 494 }, 4);
+
+	// 音乐及图片的根目录
+	private final String imageRootPath = "images/Panel1/";
+	private final String musicRootPath = "music/Panel1/";
+
+	private Panel1Listener listener;
+	// 背景图
+	transient private BufferedImage background, key1;
+	private final String backPath = "back1.jpg";
+	private final String key1Path = "key1.png";
+
+	public Panel1(GameFrame gameFrame) throws FileNotFoundException,
+			IOException {
+		super(gameFrame);
+		panel2 = new Panel2(gameFrame, this);
+
+		// 新建及添加监听
+		listener = new Panel1Listener();
+		addMouseListener(listener);
+		addMouseMotionListener(listener);
+
+		// 读取图片
+		background = ImageIO
+				.read(new FileInputStream(imageRootPath + backPath));
+		key1 = ImageIO.read(new FileInputStream(imageRootPath + key1Path));
+
+		imageReady = true;
+	}
+
+	// 反序列化时设置GameFrame
+	public void setGameFrame(GameFrame gameFrame) {
+		super.setGameFrame(gameFrame);
+		if (panel2.gameFrame == null)
+			panel2.setGameFrame(gameFrame);
+	}
+
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		g.drawImage(background, 0, 0, getWidth(), getHeight() - 150, null);
+		System.out.println(key1.getWidth()+","+key1.getHeight());
+		g.drawImage(key1,456,486,46,10,null);
+
+		g.setColor(Color.white);
+		g.drawPolygon(DOOR);
+		g.drawPolygon(ROBOT);
+//		g.drawPolygon(KEY1);
+		g.setColor(Color.black);
+
+		changeShadow(g);
+	}
+
+	// 实现监听的类
+	private class Panel1Listener implements MouseListener, MouseMotionListener,
+			Serializable {
+		private Point po;
+
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			// TODO 自动生成的方法存根
+
+		}
+
+		@Override
+		public void mouseMoved(MouseEvent e) {
+			// TODO 自动生成的方法存根
+
+		}
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			// TODO 自动生成的方法存根
+			getPoint(e);
+			if (DOOR.contains(po)) {
+				gameFrame.setPanel(panel2);
+				panel2.alphaChange(0, 8);
+			}
+			System.out.println(po);
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			// TODO 自动生成的方法存根
+
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			// TODO 自动生成的方法存根
+
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			// TODO 自动生成的方法存根
+
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			// TODO 自动生成的方法存根
+
+		}
+
+		void getPoint(MouseEvent e) {
+			po = new Point(e.getX(), e.getY());
+		}
+	}
+
+	// 反序列化恢复图片
+	private void readObject(ObjectInputStream stream)
+			throws ClassNotFoundException, IOException {
+		imageReady = false;
+		stream.defaultReadObject();
+		background = ImageIO
+				.read(new FileInputStream(imageRootPath + backPath));
+		key1 = ImageIO.read(new FileInputStream(imageRootPath + key1Path));
+		imageReady = true;
+	}
+}

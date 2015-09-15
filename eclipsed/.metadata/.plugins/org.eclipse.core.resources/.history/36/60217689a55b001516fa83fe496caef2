@@ -1,0 +1,12 @@
+'''
+Created on 2015年9月15日
+
+@author: YangYanfei
+'''
+
+def solve(A,B):
+    for j in range(5):
+        print(j)
+ 
+print (solve([1,2,3],[4,5,6]))
+        

@@ -1,0 +1,27 @@
+import java.io.File;
+
+
+public class FileFinder {
+
+	public void find(File file,int level){
+		File [] files=file.listFiles();
+		for(File fil:files){
+			printFile(fil,level);
+			if(fil.isDirectory())
+				find(fil,level+1);
+		}
+	}
+	
+	public void printFile(File file,int level){
+		for(int i=0;i<level;i++)
+			System.out.print("  ");
+		System.out.print("---");
+		System.out.println(file.getName());
+	}
+	
+	public static void main(String[]args){
+		FileFinder file=new FileFinder();
+		file.find(new File("E"), 0);
+	}
+
+}

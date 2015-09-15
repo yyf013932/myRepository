@@ -1,0 +1,51 @@
+package swr.sxc.zjs.yyf.smallgame;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+
+/**
+ * 
+ * @author YangYanfei
+ * 开启密道所需要玩的小游戏
+ */
+public class RightClick implements Serializable {
+	// 正确的点击顺序
+	private static final int[] PASSWORD = { 0, 4, 3, 1, 4, 2 };
+	private static final int LENGTH = 6;
+	private boolean checked;
+
+	private ArrayList<Integer> currentState;
+
+	public RightClick() {
+		currentState = new ArrayList<>();
+		checked = true;
+	}
+
+	// 清空状态
+	public void clear() {
+		currentState.clear();
+	}
+
+	// 添加点击
+	public void addClick(int i) {
+		if (currentState.size() == LENGTH) {
+			currentState.remove(0);
+			currentState.add(i);
+		} else
+			currentState.add(i);
+		checked = false;
+	}
+
+	public boolean checkState() {
+		if (!checked) {
+			checked = true;
+			for (int i = 0; i < LENGTH; i++) {
+				if (currentState.get(i) != PASSWORD[i])
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+}

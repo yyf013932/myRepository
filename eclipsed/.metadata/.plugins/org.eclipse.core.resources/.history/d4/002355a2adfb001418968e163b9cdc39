@@ -1,0 +1,33 @@
+package swr.sxc.zjs.yyf.game;
+
+import java.awt.image.BufferedImage;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+public class Item extends JLabel {
+	protected int id;
+	int x,y,width,height;
+	JPanel panel;
+	Inventory inven;
+	//图片（panel 里的图和Label的图)
+	BufferedImage panelImage;
+	ImageIcon labelIcon;
+	
+	public Item(Inventory inventory){
+		this.inven=inventory;
+	}
+	
+	public void setPanelLocation(int x,int y){
+		this.x=x;
+		this.y=y;
+	}
+	
+	//移动panel图的方法
+	public void move(int targetX,int targetY){
+		
+	}
+	
+	
+}

@@ -1,0 +1,16 @@
+'''
+Created on 2015年9月15日
+
+@author: YangYanfei
+'''
+class solution:
+    def solve(self,n):
+        if n==1:
+            return 1
+        elif n==0:
+            return 1
+        return self.solve(n-1)+self.solve(n-2)
+    
+so=solution()
+print (so.solve(4))
+        

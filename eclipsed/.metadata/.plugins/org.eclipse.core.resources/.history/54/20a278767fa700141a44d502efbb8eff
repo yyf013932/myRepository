@@ -1,0 +1,82 @@
+package StoreHouse;
+
+import java.io.*;
+import java.util.*;
+
+public class StoreHouse {
+	ArrayList<Item> list=new ArrayList();
+	final String FILEPATH="src/storehouse.txt";   //文件存储路径
+	File file=new File(FILEPATH);
+    public void Save(){
+    	try {
+    		file.delete();
+			FileWriter writer=new FileWriter(file);
+			for(Item i:list)
+				writer.write(i.getNumber()+";"+i.getCategory()+";"+i.getName()+";"+i.getModel()+";"+i.getStock()+"\n");
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
+    public void Read(){
+    	try {  
+			BufferedReader reader=new BufferedReader(new FileReader(file));
+			while(reader.ready()){
+				String[] str=reader.readLine().split(";");
+				list.add(new Item(Integer.parseInt(str[0]),str[1],str[2],str[3],Integer.parseInt(str[4])));
+			}
+			reader.close();
+		} catch (Exception e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		} 
+
+    }
+	public void Add(Item item){
+		int sta=0;
+		for(int i=0;i<list.size();i++)
+			if(list.get(i).getNumber()==item.getNumber()){
+				sta=1;
+				break;
+			}
+		if(sta==1)
+			System.out.println("仓库中已有该商品，请用Update更新");
+		else{
+			list.add(item);		     //如果没有，直接加入
+			System.out.println("已添加到仓库中");
+		}
+	}
+	public void Remove(int Number){
+		
+	}
+	
+	public void Update(){
+		
+	}
+	
+	public void Find(int Number){
+		
+	}
+	public void show(){
+		Collections.sort(list,new Comparator<Item>(){
+			public int compare(Item i1,Item i2){
+				if(i1.getNumber()>i2.getNumber())
+					return 1;
+				else return -1;
+			}
+		});
+		for(Item i:list)
+			System.out.println(i.getNumber()+";"+i.getCategory()+";"+i.getName()+";"+i.getModel()+";"+i.getStock());
+		Save();
+	}
+
+	public  static void main(String[]arg){
+		StoreHouse storehouse=new StoreHouse();
+		storehouse.Add(new Item(1,"日光灯类","飞利浦日光灯","SR01",100)); 
+		storehouse.Add(new Item(2,"日光灯类","公牛日光灯","SR01",10));
+		storehouse.Save();
+		storehouse.list.clear();
+		storehouse.Read();
+
+	}
+}

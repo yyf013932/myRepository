@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="删除 10 个资源" deleteContents="false" description="删除 10 个资源" element1="/KeyboardScanner" element10="/PrintNumberInWord" element2="/MathStudy" element3="/Matrix" element4="/NumberConversion" element5="/PalindromicWord" element6="/PerfectAndDeficientNumbers" element7="/PhoneKeyPad" element8="/PrimeFactors" element9="/Primes" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="10" stamp="1430708753564"/>
+</session>

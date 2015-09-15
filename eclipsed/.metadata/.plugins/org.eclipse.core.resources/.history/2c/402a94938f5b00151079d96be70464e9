@@ -1,0 +1,11 @@
+
+
+# -*- coding:utf-8 -*-
+class solution:
+    def solve(self,A):
+     return 0
+    
+so=solution()
+print (so.solve([2,5,4,6]))
+        
+        

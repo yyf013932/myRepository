@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="将资源“电子相册/Icon/save.png”重命名为“save.jpg”" description="重命名资源“save.png”" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="Icon/save.png" name="save.jpg" stamp="1427201161377" updateReferences="true"/>&#x0A;<refactoring accessors="true" comment="Delete element from 项目“电子相册”&#x0D;&#x0A;－ 原始项目：“电子相册”&#x0D;&#x0A;－ 原始元素：“save.jpg”" description="删除元素" element1="Icon/save.jpg" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="1" stamp="1427202016713" subPackages="false" version="1.0"/>
+</session>

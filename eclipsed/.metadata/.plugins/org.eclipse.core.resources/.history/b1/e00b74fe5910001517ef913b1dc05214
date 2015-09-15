@@ -1,0 +1,990 @@
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class ALU {
+	// 1
+	/**
+	 * 
+	 * @param formula 字符串表示的计算公式， 其形式为： 操作数 操作符 操作数=， 例如 “5+(-7)=” 。
+	计算公式中有且仅有 2 个操作数， 采用十进制表示， 当操作数为负数时可能用括号括住；
+	有且仅有*+-/中的 1 个作为操作符；以=号结束。
+	 * @return 计算结果的真值。如果是负数，最左边为“-”；如果是正数或 0，不需要符号位
+	 */
+	public String calculation(String formula) {
+		String operator1, operator2, operation, result = "";
+		// 用来匹配输入的正则表达式
+		Pattern par = Pattern
+				.compile("(\\(*([+-/*]*[\\d.]+)\\)*)([+-/*])(\\(*([+-/*]*[\\d.]+)\\)*)");
+		Matcher m = par.matcher(formula);
+		m.find();
+		operator1 = m.group(2);
+		operation = m.group(3);
+		operator2 = m.group(m.groupCount());
+		// 加
+		if (operation.equals("+")) {
+			if (operator1.contains(".") || operator2.contains(".")) {
+				if (!operator1.contains("."))
+					operator1 += ".0";
+				if (!operator2.contains("."))
+					operator2 += ".0";
+				result = floatTrueValue(
+						floatAddition(floatRepresentation(operator1, 23, 8),
+								floatRepresentation(operator2, 23, 8), 23, 8, 4),
+						23, 8);
+			} else {
+				result = integerTrueValue(integerAddition(
+						integerRepresentation(operator1, 32),
+						integerRepresentation(operator2, 32), '0', 32)
+						.substring(0, 32));
+			}
+		}
+		// 减
+		else if (operation.equals("-")) {
+			if (operator1.contains(".") || operator2.contains(".")) {
+				if (!operator1.contains("."))
+					operator1 += ".0";
+				if (!operator2.contains("."))
+					operator2 += ".0";
+
+				result = floatTrueValue(
+						floatSubtraction(floatRepresentation(operator1, 23, 8),
+								floatRepresentation(operator2, 23, 8), 23, 8, 4),
+						23, 8);
+
+			} else {
+				result = integerTrueValue(integerSubtraction(
+						integerRepresentation(operator1, 32),
+						integerRepresentation(operator2, 32), 32).substring(0,
+						32));
+			}
+
+		}
+		// 乘
+		else if (operation.equals("*")) {
+			if (operator1.contains(".") || operator2.contains(".")) {
+				if (!operator1.contains("."))
+					operator1 += ".0";
+				if (!operator2.contains("."))
+					operator2 += ".0";
+
+				result = floatTrueValue(
+						floatMultiplication(
+								floatRepresentation(operator1, 23, 8),
+								floatRepresentation(operator2, 23, 8), 23, 8),
+						23, 8);
+
+			} else {
+				result = integerTrueValue(integerMultiplication(
+						integerRepresentation(operator1, 32),
+						integerRepresentation(operator2, 32), 32).substring(32));
+			}
+
+		}
+		// 除
+		else if (operation.equals("/")) {
+			if (operator1.contains(".") || operator2.contains(".")) {
+				if (!operator1.contains("."))
+					operator1 += ".0";
+				if (!operator2.contains("."))
+					operator2 += ".0";
+
+				result = floatTrueValue(
+						floatDivision(floatRepresentation(operator1, 23, 8),
+								floatRepresentation(operator2, 23, 8), 23, 8),
+						23, 8);
+
+			} else {
+				result = integerTrueValue(integerDivision(
+						integerRepresentation(operator1, 32),
+						integerRepresentation(operator2, 32), 32).substring(0,
+						32));
+			}
+
+		}
+		return result;
+	}
+
+	// 2
+	/**
+	 * 生成十进制的补码表示
+	 * @param number  十进制数，前面若有"-"，表示负数
+	 * @param length  补码长度
+	 * @return  补码表示
+	 */
+	public String integerRepresentation(String number, int length) {
+		char[] result = new char[length];
+		int integer = new Integer(number);
+		integer = Math.abs(integer);
+		for (int i = 0; i < length; i++) {
+			if (integer % 2 == 1)
+				result[length - i - 1] = '1';
+			else
+				result[length - i - 1] = '0';
+			integer /= 2;
+		}
+		if (number.charAt(0) == '-')
+			return integerSubtraction("0", new String(result), length)
+					.substring(0, length);
+		else
+			return new String(result);
+
+	}
+
+	// 3
+	/**
+	 * 
+	 * @param number  十进制浮点数，其中包含小数点。如果是负数，最左边为“-”；如果是正数
+	或 0，不需要符号位
+	 * @param sLength  尾数的长度，取值大于等于 8
+	 * @param eLength  指数的长度，取值大于等于 8
+	 * @return  number 的二进制表示，长度为 1+sLength+eLength。从左向右，依次为符号、
+	指数（移码表示）、尾数（首位隐藏）。需要考虑 0、反规格化表示、无穷、NaN 等因
+	素，具体借鉴 IEEE 754。舍入采用就近舍入
+	 */
+	public String floatRepresentation(String number, int sLength, int eLength) {
+		if (!number.contains(".")) {
+			number = number + ".0";
+		}
+		String[] sps = number.split("\\D");
+		String inte, deci;
+		int i = 0, bia = (int) (Math.pow(2, eLength - 1) - 1);
+		StringBuffer intBa = new StringBuffer(), deciBa = new StringBuffer(), result = new StringBuffer();
+		// 如果以是负数会分离出来一个空字符串
+		if (sps[0].equals("")) {
+			inte = sps[1];
+			deci = sps[2];
+			result.append("1");
+		} else {
+			inte = sps[0];
+			deci = sps[1];
+			result.append("0");
+		}
+		int in = new Integer(inte);
+		BigDecimal dec = new BigDecimal("0." + deci);
+
+		// 获得整数部分二进制表示
+		while (in > 0) {
+			intBa.insert(0, in % 2);
+			in /= 2;
+		}
+
+		// 获得小数部分二进制表示
+		// 给小数预留2*sLength位
+		while (i < 2 * sLength) {
+			dec = dec.multiply(new BigDecimal("2"));
+			if (dec.compareTo(new BigDecimal("1")) >= 0) {
+				deciBa.append('1');
+				dec = dec.subtract(new BigDecimal("1"));
+			} else {
+				deciBa.append('0');
+			}
+			i++;
+		}
+		int integerBits = intBa.length(), shiftBits = 0;
+		String temRe = intBa.toString() + deciBa.toString();
+
+		// 阶值为正
+		if (integerBits > 0) {
+			shiftBits = integerBits - 1;
+
+			// 舍入
+			if (temRe.charAt(sLength + 1) == '1') {
+				temRe = integerAddition("0" + temRe.substring(0, sLength + 1),
+						"01", '0', sLength + 2);
+				if (temRe.charAt(0) == '0') {
+					temRe = temRe.substring(1, sLength + 2);
+				} else
+					shiftBits++;
+			}
+
+			// 上溢
+			if (shiftBits > bia) {
+				char[] c1 = new char[eLength], c2 = new char[sLength];
+				Arrays.fill(c1, '1');
+				Arrays.fill(c2, '0');
+				result.append(c1);
+				result.append(c2);
+				return result.toString();
+			}
+			result.append(integerRepresentation(
+					String.valueOf(shiftBits + bia), eLength));
+			result.append(temRe.substring(1, sLength + 1));
+			return result.toString();
+		}
+		// 阶值为负
+		else {
+			shiftBits = temRe.indexOf('1') + 1;
+			// 阶值下溢
+			if (shiftBits == 0 || shiftBits > bia - 1) {
+				System.out.println(temRe + "," + shiftBits);
+				temRe = leftShift(temRe, bia - 2);
+				System.out.println("After:" + temRe);
+				char[] c1 = new char[eLength];
+				Arrays.fill(c1, '0');
+				result.append(c1);
+				result.append(temRe.substring(0, sLength));
+				return result.toString();
+			}
+			temRe = leftShift(temRe, shiftBits);
+
+			result.append(integerRepresentation(
+					String.valueOf(bia - shiftBits), eLength));
+			result.append(temRe.substring(0, sLength - 1));
+			// 舍入
+			if (temRe.charAt(sLength) == '1')
+				result.append("1");
+			else
+				result.append("0");
+			return result.toString();
+
+		}
+	}
+
+	// 4
+	/**
+	 * 
+	 * @param number  十进制浮点数，其中包含小数点。如果是负数，最左边为“-”；如果是正数
+	或 0，不需要符号位
+	 * @param length  二进制表示的长度，为 32 或 64
+	 * @return  number的二进制表示，长度为 length。从左向右，依次为符号、指数（移码
+	表示）、尾数（首位隐藏）
+	 */
+	public String ieee754(String number, int length) {
+		if (length == 32)
+			return floatRepresentation(number, 23, 8);
+		else
+			return floatRepresentation(number, 52, 11);
+	}
+
+	// 5
+	/**
+	 * 整数的真值
+	 * @param operand 二进制补码数
+	 * @return 对应的整数值
+	 */
+	public String integerTrueValue(String operand) {
+		BigInteger result = new BigInteger("0");
+		int length = operand.length();
+		if (operand.charAt(0) == '1')
+			if (length == 32)
+				result = result.add(new BigInteger(String
+						.valueOf(Integer.MIN_VALUE)));
+			else
+				result = result.subtract(new BigInteger(String
+						.valueOf((int) Math.pow(2, length - 1))));
+		for (int i = 1; i < length; i++) {
+			if (operand.charAt(i) == '1')
+				result = result.add(new BigInteger(String.valueOf((int) Math
+						.pow(2, length - i - 1))));
+		}
+		return result.toString();
+	}
+
+	// 6
+	/**
+	 * 计算二进制表示浮点数的真值
+	 * @param operand  操作数，原码形式的二进制表示
+	 * @param sLength  尾数的长度，取值大于等于 8
+	 * @param eLength  指数的长度，取值大于等于 8
+	 * @return  操作数的真值。如果是负数，最左边为“-”；如果是正数或 0，不需要符号
+	位。正负无穷分别表示为“+Inf”和“-Inf”，NaN 表示为“NaN”
+	 */
+	public String floatTrueValue(String operand, int sLength, int eLength) {
+		String sign = operand.substring(0, 1), signifi = operand
+				.substring(1 + eLength), expo = operand.substring(1,
+				eLength + 1);
+		double significan = 0, result = 0;
+		int expolent = 0, bia = (int) (Math.pow(2, eLength - 1) - 1);
+		if (!expo.contains("0")) {
+			if (signifi.contains("1"))
+				return "NaN";
+			else {
+				if (sign.equals("1"))
+					return "-Inf";
+				else
+					return "+Inf";
+			}
+		}
+		if (!expo.contains("1") && !signifi.contains("1")) {
+			return "0";
+		}
+		for (int i = 0; i < signifi.length(); i++) {
+			if (signifi.charAt(i) == '1')
+				significan += Math.pow(2, -i - 1);
+		}
+		// 非规格化
+		if (!expo.contains("1")) {
+			result = significan * (1 - bia);
+		}
+		// 规格化
+		else {
+			for (int i = 0; i < expo.length(); i++) {
+				if (expo.charAt(expo.length() - 1 - i) == '1')
+					expolent += Math.pow(2, i);
+			}
+			expolent -= bia;
+			result = (significan + 1) * (Math.pow(2, expolent));
+		}
+
+		if (sign.equals("1"))
+			return "-" + result;
+		else
+			return result + "";
+	}
+
+	// 7
+	/**
+	 * 取反操作
+	 * @param operand
+	 * @return operand的按位取反
+	 */
+	public String negation(String operand) {
+		char[] re = new char[operand.length()];
+		for (int i = 0; i < operand.length(); i++)
+			if (operand.charAt(i) == '0')
+				re[i] = '1';
+			else
+				re[i] = '0';
+		return new String(re);
+	}
+
+	// 8
+	/**
+	 * 左移
+	 * @param operand 源操作数
+	 * @param n  左移的位数
+	 * @return 左移后的数
+	 */
+	public String leftShift(String operand, int n) {
+		char[] re = new char[operand.length()];
+		if (n >= operand.length()) {
+			Arrays.fill(re, '0');
+		} else {
+			System.arraycopy(operand.toCharArray(), n, re, 0, operand.length()
+					- n);
+			Arrays.fill(re, operand.length() - n, operand.length(), '0');
+		}
+		return new String(re);
+	}
+
+	// 9
+	/**
+	 * 算术右移操作
+	 * @param operand
+	 * @param n
+	 * @return 右移后的数字
+	 */
+	public String rightAriShift(String operand, int n) {
+		char[] re = new char[operand.length()];
+		// 需要补的位
+		char val = operand.charAt(0);
+		if (n >= operand.length()) {
+			Arrays.fill(re, val);
+		} else {
+			System.arraycopy(operand.toCharArray(), 0, re, n, operand.length()
+					- n);
+			Arrays.fill(re, 0, n, val);
+		}
+		return new String(re);
+	}
+
+	// 10
+	/**
+	 * 逻辑右移
+	 * @param operand
+	 * @param n
+	 * @return 右移后的数
+	 */
+	public String rightLogShift(String operand, int n) {
+		char[] re = new char[operand.length()];
+		// 需要补的位
+		char val = '0';
+		if (n >= operand.length()) {
+			Arrays.fill(re, val);
+		} else {
+			System.arraycopy(operand.toCharArray(), 0, re, n, operand.length()
+					- n);
+			Arrays.fill(re, 0, n, val);
+		}
+		return new String(re);
+	}
+
+	// 11
+	/**
+	 * 全加器运算
+	 * @param x  第一位
+	 * @param y  第二位
+	 * @param c  进上的位
+	 * @return  长度为2的字符串，第一位为和，第二位为进位
+	 */
+	public String fullAdder(char x, char y, char c) {
+		char[] re = new char[2];
+		boolean x1 = (x == '1'), x2 = (y == '1'), c1 = (c == '1');
+		if (x1 ^ x2 ^ c1)
+			re[0] = '1';
+		else
+			re[0] = '0';
+		if (x1 && x2 || x1 && c1 || x2 && c1)
+			re[1] = '1';
+		else
+			re[1] = '0';
+		return new String(re);
+	}
+
+	// 12
+	/**
+	 * 8位的先行进位加法器
+	 * @param operand1  操作数1
+	 * @param operand2 操作数2
+	 * @param c  后面进的位
+	 * @return  长度为9的字符串，前8位表示和，第9位表示进位
+	 */
+	public String claAdder(String operand1, String operand2, char c) {
+		// op1、op2、Cb、G、P分别存放操作数一布尔值、操作数二布尔值、进位布尔值、对应位与运算布尔值、对应位或运算布尔值
+		boolean[] op1 = new boolean[8], op2 = new boolean[8], P = new boolean[8], Cb = new boolean[8], G = new boolean[8];
+		boolean carry;
+		char[] re = new char[9], C = new char[8];
+		if (c == '1')
+			carry = true;
+		else
+			carry = false;
+		// 将字符的1、0转换为真假，同时计算出所有的对应位与和或的结果。
+		for (int i = 0; i < 8; i++) {
+			if (operand1.charAt(7 - i) == '1')
+				op1[i] = true;
+			else
+				op1[i] = false;
+			if (operand2.charAt(7 - i) == '1')
+				op2[i] = true;
+			else
+				op2[i] = false;
+			P[i] = op1[i] || op2[i];
+			G[i] = op1[i] && op2[i];
+		}
+
+		// 计算进位
+		for (int i = 0; i < 8; i++) {
+			boolean[] tem1 = new boolean[i + 1];
+			for (int j = 0; j < i + 1; j++) {
+				boolean[] tem2 = new boolean[j + 2];
+
+				for (int k = 0; k < j + 2; k++) {
+					if (k < j + 1) {
+						tem2[k] = P[i - k];
+					} else if (j == i) {
+						tem2[k] = carry;
+					} else {
+						tem2[k] = G[i - k];
+					}
+				}
+				tem1[j] = tem2[0] && tem2[1];
+				for (int h = 2; h < j + 2; h++) {
+					tem1[j] &= tem2[h];
+				}
+			}
+			Cb[i] = G[i] || tem1[0];
+			for (int t = 1; t < i + 1; t++) {
+				Cb[i] |= tem1[t];
+			}
+
+			if (Cb[i])
+				C[i] = '1';
+			else
+				C[i] = '0';
+		}
+
+		for (int i = 0; i < 8; i++) {
+			if (i == 0)
+				re[7 - i] = fullAdder(operand1.charAt(7 - i),
+						operand2.charAt(7 - i), c).charAt(0);
+			else {
+				re[7 - i] = fullAdder(operand1.charAt(7 - i),
+						operand2.charAt(7 - i), C[i - 1]).charAt(0);
+			}
+		}
+
+		re[8] = C[7];
+
+		return new String(re);
+	}
+
+	// 13
+	/**
+	 * 模拟部分先行进位加法器
+	 * @param operand1  操作数1
+	 * @param operand2  操作数2
+	 * @param c  后面的进位
+	 * @param length  存放操作数的寄存器的长度。length 不小于操作数的长度，当某个操作数的长
+	度小于 length 时，需要在高位补符号位。当 length 不为 8 的整数倍，需要对高位补位并
+	运算。
+	 * @return  长度为 length+1 的字符串。从左向右，前 length 位计算结果，用补码表示；
+	最后 1 位为是否溢出，其中溢出为 1，不溢出为 0
+	 */
+	public String integerAddition(String operand1, String operand2, char c,
+			int length) {
+		char[] temCh = new char[length - operand1.length()];
+		// 操作数长度小于length时补位
+		if (operand1.length() < length) {
+			Arrays.fill(temCh, operand1.charAt(0));
+			operand1 = new String(temCh) + operand1;
+		}
+		if (operand2.length() < length) {
+			temCh = new char[length - operand2.length()];
+			Arrays.fill(temCh, operand2.charAt(0));
+			operand2 = new String(temCh) + operand2;
+		}
+
+		char[] re = new char[length + 1];
+		char carry = c;
+		int numByte = length / 8;
+		int othe = length - 8 * numByte;
+		String tem;
+		for (int i = 0; i < numByte; i++) {
+			tem = claAdder(
+					operand1.substring(length - 8 * i - 8, length - 8 * i),
+					operand2.substring(length - 8 * i - 8, length - 8 * i),
+					carry);
+			System.arraycopy(tem.substring(0, 8).toCharArray(), 0, re, length
+					- 8 * i - 8, 8);
+			carry = tem.charAt(8);
+		}
+		for (int i = othe - 1; i >= 0; i--) {
+			tem = fullAdder(operand1.charAt(i), operand2.charAt(i), carry);
+			re[i] = tem.charAt(0);
+			carry = tem.charAt(1);
+		}
+		char c1 = operand1.charAt(0), c2 = operand2.charAt(0);
+		// 判断溢出
+		if ((re[0] == '1' && c1 == '0' && c2 == '0')
+				|| (re[0] == '0' && c1 == '1' && c2 == '1'))
+			re[length] = '1';
+		else
+			re[length] = '0';
+		return new String(re);
+	}
+
+	// 14
+	/**
+	 * 模拟减法
+	 * @param operand1  操作数1
+	 * @param operand2  操作数2
+	 * @param length  存放操作数的寄存器的长度。length 不小于操作数的长度，当某个操作数的长
+	度小于 length 时，需要在高位补符号位。
+	 * @return   长度为 length+1 的字符串。从左向右，前 length 位计算结果，用补码表示；
+	最后 1 位为是否溢出，其中溢出为 1，不溢出为 0。
+	 * 
+	 */
+	public String integerSubtraction(String operand1, String operand2,
+			int length) {
+		String re = null;
+		re = integerAddition(operand1, negation(operand2), '1', length);
+		return re;
+	}
+
+	// 15
+	/**
+	 * 模拟 Booth 乘法
+	 * @param operand1  被乘数，用补码表示
+	 * @param operand2  乘数，用补码表示 
+	 * @param length  存放操作数的寄存器的长度。length 不小于操作数的长度，当某个操作数的长
+	度小于 length 时，需要在高位补符号位。
+	 * @return  长度为 length*2，为计算结果，用补码表示
+	 */
+	public String integerMultiplication(String operand1, String operand2,
+			int length) {
+		char[] temCh = new char[length - operand1.length()];
+		// 操作数长度小于length时补位
+		if (operand1.length() < length) {
+			Arrays.fill(temCh, operand1.charAt(0));
+			operand1 = new String(temCh) + operand1;
+		}
+		if (operand2.length() < length) {
+			temCh = new char[length - operand2.length()];
+			Arrays.fill(temCh, operand2.charAt(0));
+			operand2 = new String(temCh) + operand2;
+		}
+
+		temCh = new char[length];
+		Arrays.fill(temCh, '0');
+		String re = new String(temCh) + operand2 + "0";
+		for (int i = 0; i < length; i++) {
+			if (re.charAt(2 * length) == re.charAt(2 * length - 1)) {
+
+			} else if (re.charAt(2 * length) == '1') {
+				re = integerAddition(re.substring(0, length), operand1, '0',
+						length).substring(0, length)
+						+ re.substring(length, 2 * length + 1);
+
+			} else {
+				re = integerSubtraction(re.substring(0, length), operand1,
+						length).substring(0, length)
+						+ re.substring(length, 2 * length + 1);
+			}
+			re = rightAriShift(re, 1);
+		}
+		return re.substring(0, 2 * length);
+	}
+
+	// 16
+	/**
+	 * 模拟恢复余数除法
+	 * @param operand1 被除数，用补码表示
+	 * @param operand2  除数，用补码表示
+	 * @param length  存放操作数的寄存器的长度。length 不小于操作数的长度，当某个操作数的长
+	度小于 length 时，需要在高位补符号位
+	 * @return  长度为 length*2 的字符串。 从左向右， 前 length 位为商， 用补码表示； 后 length
+	为余数，用补码表示。
+	 */
+	public String integerDivision(String operand1, String operand2, int length) {
+		char[] temCh;
+		// 操作数长度小于length时补位
+		if (operand1.length() < length) {
+			temCh = new char[length - operand1.length()];
+			Arrays.fill(temCh, operand1.charAt(0));
+			operand1 = new String(temCh) + operand1;
+		}
+		if (operand2.length() < length) {
+			temCh = new char[length - operand2.length()];
+			Arrays.fill(temCh, operand2.charAt(0));
+			operand2 = new String(temCh) + operand2;
+		}
+
+		temCh = new char[length];
+		String re, tem;
+		Arrays.fill(temCh, operand1.charAt(0));
+		re = new String(temCh) + operand1;
+		for (int i = 0; i < length; i++) {
+			re = leftShift(re, 1).substring(0, 2 * length - 1);
+			System.out.println(re);
+			if (re.charAt(0) == operand2.charAt(0))
+				tem = integerSubtraction(re.substring(0, length), operand2,
+						length).substring(0, length);
+			else
+				tem = integerAddition(re.substring(0, length), operand2, '0',
+						length).substring(0, length);
+			if (tem.charAt(0) == re.charAt(0)) {
+				re = tem + re.substring(length, 2 * length - 1) + "1";
+				System.out.println("enough");
+			} else {
+				re = re + "0";
+				System.out.println("not enough");
+			}
+
+		}
+		System.out.println(re);
+
+		if (operand1.charAt(0) != operand2.charAt(0))
+			re = re.substring(0, length)
+					+ integerSubtraction("0", re.substring(length, 2 * length),
+							length);
+		/**
+		 * bug修复
+		 */
+		// if (Math.abs(new Integer(integerTrueValue(re.substring(0, length))))
+		// == Math
+		// .abs(new Integer(integerTrueValue(operand2)))) {
+		// String qu = re.substring(length, 2 * length), remainder = re
+		// .substring(0, length);
+		// if (qu.charAt(0) == '0') {
+		// qu = integerAddition(qu, "01", '0', length)
+		// .substring(0, length);
+		// } else {
+		// qu = integerSubtraction(qu, "01", length).substring(0, length);
+		// }
+		// remainder = integerAddition("0", "0", '0', length - 1);
+		// re = remainder + qu;
+		// }
+		/**
+		 * 
+		 */
+
+		return re.substring(length, 2 * length) + re.substring(0, length);
+	}
+
+	// 17
+	/**
+	 * 
+	 * @param operand1  被加数，用二进制表示
+	 * @param operand2  加数，用二进制表示
+	 * @param sLength  尾数的长度，取值大于等于 8
+	 * @param eLength  指数的长度，取值大于等于 8
+	 * @param gLength  保护位的长度
+	 * @return  长度为 1+sLength+eLength+1 的字符串。从左向右，依次为符号、指数（移码
+	表示）、尾数（首位隐藏）；最后 1 位为是否溢出，其中溢出为 1，不溢出为 0。舍入
+	采用就近舍入
+	 */
+	public String floatAddition(String operand1, String operand2, int sLength,
+			int eLength, int gLength) {
+		int Max_expo = (int) (Math.pow(2, eLength) - 1), bia = (int) (Math.pow(
+				2, eLength - 1) - 1);
+		String sign1 = operand1.substring(0, 1), expo1 = operand1.substring(1,
+				eLength + 1), signif1 = operand1.substring(1 + eLength);
+		String sign2 = operand2.substring(0, 1), expo2 = operand2.substring(1,
+				eLength + 1), signif2 = operand2.substring(1 + eLength);
+		int expo_Int1 = new Integer(integerTrueValue("0" + expo1)), expo_Int2 = new Integer(
+				integerTrueValue("0" + expo2));
+		int result_expo;
+		String result_signif, result_sign;
+		if (!signif1.contains("1") && !expo1.contains("1"))
+			return operand2 + "0";
+		if (!signif2.contains("1") && !expo1.contains("1"))
+			return operand1 + "0";
+		if (expo_Int1 != 0)
+			signif1 = "1" + signif1;
+		else
+			signif1 = "0" + signif1;
+		if (expo_Int2 != 0)
+			signif2 = "1" + signif2;
+		else
+			signif2 = "0" + signif2;
+
+		// 加上保护位
+		char[] ch = new char[gLength];
+		Arrays.fill(ch, '0');
+		signif1 = signif1 + new String(ch);
+		signif2 = signif2 + new String(ch);
+
+		// 对阶
+		if (expo_Int1 > expo_Int2) {
+			signif2 = rightLogShift(signif2, expo_Int1 - expo_Int2);
+			result_expo = expo_Int1;
+			if (!signif2.contains("1"))
+				return operand1 + "0";
+		} else {
+			signif1 = rightLogShift(signif1, expo_Int2 - expo_Int1);
+			result_expo = expo_Int2;
+			if (!signif1.contains("1"))
+				return operand2 + "0";
+		}
+		// 带符号的有效值相加
+		// 符号相同
+		if (sign1.equals(sign2)) {
+			result_signif = integerAddition("0" + signif1, "0" + signif2, '0',
+					sLength + gLength + 2);
+			if (result_signif.charAt(0) == '1') {
+				result_expo += 1;
+				result_signif = result_signif.substring(0, sLength + gLength
+						+ 1);
+				// 阶值上溢
+				if (result_expo > Max_expo) {
+					char[] ch1 = new char[eLength], ch2 = new char[sLength];
+					Arrays.fill(ch1, '1');
+					Arrays.fill(ch2, '0');
+					return sign1 + new String(ch1) + new String(ch2) + "1";
+				}
+			} else
+				result_signif = result_signif.substring(1, sLength + gLength
+						+ 2);
+			result_sign = sign1;
+		}
+		// 符号不同
+		else {
+			result_signif = integerSubtraction("0" + signif1, "0" + signif2,
+					sLength + gLength + 2);
+			if (result_signif.charAt(0) == '0') {
+				result_sign = sign1;
+			} else {
+				result_sign = sign2;
+				result_signif = integerSubtraction("0",
+						result_signif.substring(0, 2 + gLength + sLength), 2
+								+ gLength + sLength);
+			}
+			result_signif = result_signif.substring(1, gLength + sLength + 2);
+		}
+		while (result_signif.charAt(0) != '1' && result_expo > 0) {
+			result_signif = leftShift(result_signif, 1);
+			result_expo--;
+		}
+
+		// 舍入(有保护位的情况下)
+		if (gLength > 0) {
+			if (result_signif.charAt(sLength + 1) == '1') {
+				String temRe = integerAddition(
+						"0" + result_signif.substring(0, sLength + 1), "01",
+						'0', sLength + 2);
+				if (temRe.charAt(0) == '1') {
+					result_expo++;
+					result_signif = temRe;
+					// 阶值上溢
+					if (result_expo > Max_expo) {
+						char[] ch1 = new char[eLength], ch2 = new char[sLength];
+						Arrays.fill(ch1, '1');
+						Arrays.fill(ch2, '0');
+						return sign1 + new String(ch1) + new String(ch2) + "1";
+					}
+				} else
+					result_signif = temRe.substring(1);
+
+			}
+		}
+		return result_sign
+				+ integerRepresentation(String.valueOf(result_expo),
+						eLength + 1).substring(1, eLength + 1)
+				+ result_signif.substring(1, sLength + 1) + "0";
+	}
+
+	// 18
+	/**
+	 * 
+	 * @param operand1  被减数，用二进制表示
+	 * @param operand2  减数，用二进制表示
+	 * @param sLength  尾数的长度，取值大于等于 8
+	 * @param eLength  指数的长度，取值大于等于 8
+	 * @param gLength  保护位的长度
+	 * @return  长度为 1+sLength+eLength+1 的字符串。从左向右，依次为符号、指数（移码
+	表示）、尾数（首位隐藏）；最后 1 位为是否溢出，其中溢出为 1，不溢出为 0。舍入
+	采用就近舍入
+	 */
+	public String floatSubtraction(String operand1, String operand2,
+			int sLength, int eLength, int gLength) {
+
+		return floatAddition(operand1, (char) ('1' - operand2.charAt(0) + '0')
+				+ operand2.substring(1), sLength, eLength, gLength);
+	}
+
+	// 19
+	/**
+	 * 
+	 * @param operand1  被乘数，用二进制表示
+	 * @param operand2  乘数，用二进制表示
+	 * @param sLength 尾数的长度，取值大于等于 8
+	 * @param eLength 指数的长度，取值大于等于 8
+	 * @return  长度为 1+sLength+eLength，为积，用二进制表示。从左向右，依次为符号、
+	指数（移码表示）、尾数（首位隐藏）。舍入采用就近舍入
+	 */
+	public String floatMultiplication(String operand1, String operand2,
+			int sLength, int eLength) {
+		int Max_expo = (int) (Math.pow(2, eLength) - 1), bia = (int) (Math.pow(
+				2, eLength - 1) - 1);
+		String sign1 = operand1.substring(0, 1), expo1 = operand1.substring(1,
+				eLength + 1), signif1 = operand1.substring(1 + eLength);
+		String sign2 = operand2.substring(0, 1), expo2 = operand2.substring(1,
+				eLength + 1), signif2 = operand2.substring(1 + eLength);
+		int expo_Int1 = new Integer(integerTrueValue("0" + expo1)), expo_Int2 = new Integer(
+				integerTrueValue("0" + expo2));
+		int result_expo;
+		String result_sign, result_signif, s1, s2, result_s, result = "";
+		result_expo = expo_Int1 + expo_Int2 - bia;
+		result_sign = String
+				.valueOf(Math.abs(sign1.charAt(0) - sign2.charAt(0)));
+		// 补全尾数（多添一个0保证之后BOOTH乘法的正确性
+		if (expo_Int1 == 0)
+			s1 = "0" + "0" + signif1;
+		else
+			s1 = "0" + "1" + signif1;
+		if (expo_Int2 == 0)
+			s2 = "0" + "0" + signif2;
+		else
+			s2 = "0" + "1" + signif2;
+		result += result_sign
+				+ integerRepresentation(String.valueOf(result_expo),
+						eLength + 1).substring(1);
+		result_signif = integerMultiplication(s1, s2, sLength + 2);
+		// 如果尾数为0
+		if (!result_signif.contains("1")) {
+			result = result_sign;
+			for (int i = 0; i < sLength + eLength; i++)
+				result += "0";
+		} else {
+			result_expo += 3;
+			while (result_expo > 0 && result_signif.charAt(0) != '1') {
+				result_expo--;
+				result_signif = leftShift(result_signif, 1);
+			}
+			String roundTem;
+			if (result_expo == 0) {
+				result_signif = result_signif.substring(0, sLength + 1);
+				// 舍入
+				roundTem = integerAddition(result_signif, "0", '1', sLength + 1);
+				if (roundTem.charAt(sLength + 1) == '1')
+					result_expo += 1;
+				result_signif = result_signif.substring(0, sLength);
+			} else {
+				result_signif = result_signif.substring(1, sLength + 2);
+				roundTem = integerAddition(result_signif, "0", '1', sLength + 1);
+				if (roundTem.charAt(sLength + 1) == '1') {
+					result_signif = "0"
+							+ result_signif.substring(0, sLength - 1);
+					result_expo++;
+				} else
+					result_signif = result_signif.substring(0, sLength);
+			}
+			result = result_sign
+					+ integerRepresentation(String.valueOf(result_expo),
+							eLength) + result_signif;
+		}
+		return result;
+	}
+
+	// 20
+	/**
+	 * 
+	 * @param operand1   被除数，用补码表示。
+	 * @param operand2   除数，用补码表示。
+	 * @param sLength  尾数的长度，取值大于等于 8。
+	 * @param eLength  指数的长度，取值大于等于 8
+	 * @return
+	 */
+	public String floatDivision(String operand1, String operand2, int sLength,
+			int eLength) {
+		int Max_expo = (int) (Math.pow(2, eLength) - 1), bia = (int) (Math.pow(
+				2, eLength - 1) - 1);
+		String sign1 = operand1.substring(0, 1), expo1 = operand1.substring(1,
+				eLength + 1), signif1 = operand1.substring(1 + eLength);
+		String sign2 = operand2.substring(0, 1), expo2 = operand2.substring(1,
+				eLength + 1), signif2 = operand2.substring(1 + eLength);
+		int expo_Int1 = new Integer(integerTrueValue("0" + expo1)), expo_Int2 = new Integer(
+				integerTrueValue("0" + expo2));
+		int result_expo;
+		String result_sign, result_signif, result_s = "", result = "";
+		result_expo = expo_Int1 - expo_Int2 + bia;
+		result_sign = String
+				.valueOf(Math.abs(sign1.charAt(0) - sign2.charAt(0)));
+
+		// 补全尾数（多添两个个0保证之后除法的正确性）
+		if (expo_Int1 == 0)
+			signif1 = "0" + "0" + signif1;
+		else
+			signif1 = "0" + "1" + signif1;
+		if (expo_Int2 == 0)
+			signif2 = "0" + "0" + signif2;
+		else
+			signif2 = "0" + "1" + signif2;
+
+		int i = 0;
+		while (i++ < sLength + 1) {
+			if (integerSubtraction(signif1, signif2, sLength + 2).charAt(0) == '0') {
+				result_s += "1";
+				signif1 = integerSubtraction(signif1, signif2, sLength + 2)
+						.substring(0, sLength + 2);
+			} else
+				result_s += "0";
+			signif1 = leftShift(signif1, 1);
+		}
+
+		if (!result_s.contains("1")) {
+			result = result_sign;
+			for (int j = 0; j < sLength + eLength; j++)
+				result += "0";
+		} else {
+			while (result_s.charAt(0) != '1' && result_expo > 0) {
+				result_expo--;
+				result_s = leftShift(result_s, 1);
+			}
+
+			if (result_expo == 0) {
+				result_signif = result_s.substring(0, sLength);
+			} else {
+				result_signif = result_s.substring(1);
+			}
+			result = result_sign
+					+ integerRepresentation(String.valueOf(result_expo),
+							eLength) + result_signif;
+		}
+
+		return result;
+	}
+}

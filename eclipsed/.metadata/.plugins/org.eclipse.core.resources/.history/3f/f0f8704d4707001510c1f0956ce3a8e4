@@ -1,0 +1,1023 @@
+
+/**
+ * @author 谭昕玥 141250123
+ */
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class ALU {
+	// 1模拟两个操作数的四则运算
+	public static String calculation(String formula){
+	//	String regEx="([a-zA-Z]+)|//s+[0-9]{1,2},//s*[0-9]{4}";
+    //用正则表达式分离
+		Pattern par = Pattern
+				.compile("(\\(*([+-/*]*[\\d.]+)\\)*)([+-/*])(\\(*([+-/*]*[\\d.]+)\\)*)");
+		Matcher m = par.matcher(formula);
+		m.find();
+	  String	operator1 = m.group(2);
+	  String	operation = m.group(3);
+	  String	operator2 = m.group(5);
+      
+	  String result="";
+	  switch(operation){
+      case "+":{
+    	  if((operator1.indexOf('.')==-1)&&(operator2.indexOf('.')==-1)){
+    		  result=integerAddition(integerRepresentation(operator1,32),integerRepresentation(operator2,32),'0',32);
+    	      if(result.charAt(result.length()-1)=='0') {
+    	    	  result=integerTrueValue(result.substring(0,32));
+    	      }
+    	      else
+    	    	  result="overflow";
+    	 }  
+    	else
+    		  result=floatTrueValue(floatAddition(ieee754(operator1,32),ieee754(operator2,32),23,8,0).substring(0,32),23,8);
+    	  break;
+      }
+     case  "-":{
+    	 if((operator1.indexOf('.')==-1)&&(operator2.indexOf('.')==-1)){
+   		       result=integerSubtraction(integerRepresentation(operator1,32),integerRepresentation(operator2,32),32);
+   	      if(result.charAt(result.length()-1)=='0') {
+   	    	   result=integerTrueValue(result.substring(0,32));
+   	      }
+   	      else
+   	    	  result="overflow";
+   	    }  
+    	 else
+		    result=floatTrueValue(floatSubtraction(ieee754(operator1,32),ieee754(operator2,32),23,8,0).substring(0,32),23,8);
+   	     break;
+     }
+     case  "*":{
+   	  if((operator1.indexOf('.')==-1)&&(operator2.indexOf('.')==-1))
+		  result=integerTrueValue(integerMultiplication(integerRepresentation(operator1,32),integerRepresentation(operator2,32),32));
+	  else
+		  result=floatTrueValue(floatMultiplication(ieee754(operator1,32),ieee754(operator2,32),23,8),23,8);
+   	  break;
+     }
+     case  "/":{
+          if((operator1.indexOf('.')==-1)&&(operator2.indexOf('.')==-1))
+		        result=integerTrueValue(integerDivision(integerRepresentation(operator1,32),integerRepresentation(operator2,32),32).substring(0,32));
+	      else
+		        result=floatTrueValue(floatDivision(ieee754(operator1,32),ieee754(operator2,32),23,8),23,8);
+          break;
+     }
+      }
+	  System.out.println(result);
+      return result;
+	}
+
+	// 2于生成十进制整数的补码表示。 有可能有string转化成int时溢出的情况(OK)
+	public static String integerRepresentation(String number, int length) {
+		Integer num = Integer.parseInt(number);
+		String binaryStr = Integer.toBinaryString(num);
+
+		// toBinaryString在转化正数时length需要调整
+		if (num > 0) {
+			char[] c = new char[length - binaryStr.length()];
+			for (int i = 0; i < c.length; i++) {
+				c[i] = '0';
+			}
+			binaryStr = new String(c) + binaryStr;
+		} else {
+			binaryStr = binaryStr.substring(binaryStr.length() - length);
+		}
+		// System.out.println(binaryStr);
+		return binaryStr;
+	}
+
+	// 3生成十进制浮点数的二进制表示。
+	public static String floatRepresentation(String number, int sLength,
+			int eLength) {
+
+		String[] str = number.split("\\.");
+		// Integer num1=Integer.parseInt(str[0]);
+		String temp = "0";
+		String exponent = "";
+		int e;
+		if (str[0].charAt(0) == '-') {
+			temp = "1";
+			str[0] = str[0].substring(1, str[0].length());
+		}
+		// 下面是整数部分转化成二进制
+		Integer num = Integer.parseInt(str[0]);
+		String part1 = Integer.toBinaryString(num);
+		// System.out.println(part1);
+		if (part1.indexOf('1') != -1) {
+			e = (part1.length() - part1.indexOf('1') - 1)
+					+ (int) Math.pow(2, eLength - 1) - 1;
+		} else {
+			e = (int) Math.pow(2, eLength - 1) - 1;
+		}
+		// System.out.println(e);
+		// 下面是小数部分转化成二进制表示
+		str[1] = "0." + str[1];
+		char[] part2 = new char[sLength];
+		double d = Double.parseDouble(str[1]);
+
+		for (int i = 0; i < sLength; i++) {
+			part2[i] = '0';
+		}
+		for (int i = 0; i < sLength; i++) {
+			d = d * 2.0;
+			if (d == 1) {
+				part2[i] = '1';
+				break;
+			} else if (d > 1) {
+				part2[i] = '1';
+				d = d - 1;
+			} else
+				part2[i] = '0';
+		}
+		String f = part1 + new String(part2);
+		// System.out.println(f);
+		// 下面产生最终的浮点数表示
+		while (f.charAt(0) != '1') {
+			f = leftShift(f, 1) + '0';
+			e = e - 1;
+		}
+
+		exponent = integerRepresentation(String.valueOf(e), eLength);
+		String result = temp + exponent + f.substring(1, sLength + 1);
+
+		// System.out.println(result);
+		return result;
+	}
+
+	// 4生成十进制浮点数的 IEEE 754 表示
+	public static String ieee754(String number, int length) {
+		String numIEEE = "";
+		if (number.indexOf(",") == -1) {
+			number = number + ".0";
+		}
+		if (length == 32) {
+			numIEEE = floatRepresentation(number, 23, 8);
+		} else if (length == 64) {
+			numIEEE = floatRepresentation(number, 11, 52);
+		}
+		return numIEEE;
+	}
+
+	// 5计算二进制表示的整数的真值
+	public static String integerTrueValue(String operand) {
+		char[] c = operand.toCharArray();
+		double sum = 0;
+		boolean isNegative = false;
+		// 根据最高位确定正负
+		if (c[0] == '1')
+			isNegative = true;
+
+		if (isNegative) {
+			// 借用negation实现取补
+			operand = negation(operand.substring(0, operand.lastIndexOf('1')))
+					+ operand.substring(operand.lastIndexOf('1'),
+							operand.length());
+			c = operand.toCharArray();
+		}
+
+		for (int i = c.length - 1; i >= 0; i--) {
+			sum = sum + (c[i] - '0') * Math.pow(2, operand.length() - i - 1);
+		}
+		// 控制符号的输出
+		if (isNegative) {
+			// System.out.println("-"+String.valueOf((long)sum));
+			return "-" + String.valueOf((long) sum);
+		} else {
+			// System.out.println(String.valueOf((long)sum));
+			return String.valueOf((long) sum);
+		}
+	}
+
+	// 6计算二进制表示浮点数的真值 [这里算出来是用科学记数法表示的，重写]
+	public static String floatTrueValue(String operand, int sLength, int eLength) {
+		// System.out.println(operand);
+		char[] s = operand.substring(eLength + 1).toCharArray();
+		int esum;
+		esum = Integer.parseInt(integerTrueValue("0"
+				+ operand.substring(1, eLength + 1)));
+		// System.out.println(esum);
+		// 为0的情况
+		if (esum == 0)
+			if (operand.substring(eLength + 1, sLength + eLength + 1).indexOf(
+					'1') == -1) {
+				return expand("0", sLength + eLength + 1);
+			}// 下面为形如0.x的浮点数
+			else {
+				double sum = 0;
+				for (int j = 0; j < sLength; j++) {
+					sum = sum + (s[j] - '0') * Math.pow(2, -(j + 1));
+				}
+				// System.out.println(sum);
+				sum = sum * Math.pow(2, esum - 126);
+				if (operand.charAt(0) == '0') {
+					// System.out.println( String.valueOf(sum));
+					return String.valueOf(sum);
+				} else {
+					// System.out.println( "-"+String.valueOf(sum));
+					return "-" + String.valueOf(sum);
+				}
+			}
+
+		// 规格化浮点数
+		if (esum != 0) {
+			double sum = 1;
+			for (int j = 0; j < sLength; j++) {
+				sum = sum + (s[j] - '0') * Math.pow(2, -(j + 1));
+			}
+			// System.out.println(sum);
+			sum = sum * Math.pow(2, esum - 127);
+			if (operand.charAt(0) == '0') {
+				// System.out.println( String.format("%.2f",sum));
+				return String.valueOf(sum);
+			} else {
+				// System.out.println("-"+ String.format("%.2f", sum));
+				return ("-" + String.valueOf(sum));
+			}
+		}
+
+		// exponent全为1
+		if (operand.substring(eLength + 1, sLength + eLength + 1).indexOf('0') == -1) {
+			if (operand.substring(eLength + 1, sLength + eLength + 1).indexOf(
+					'1') == -1) {
+				if (operand.charAt(0) == '0') {
+					return "+Inf";
+				} else {
+					return "-Inf";
+				}
+			} else {
+				return "NaN";
+			}
+		}
+		return null;
+	}
+
+	// 7模拟按位取反操作(OK)
+	public static String negation(String operand) {
+		char[] c = operand.toCharArray();
+		for (int i = 0; i < c.length; i++) {
+			if (c[i] == '0') {
+				c[i] = '1';
+			} else
+				c[i] = '0';
+		}
+		return new String(c);
+	}
+
+	// 8模拟左移操作(OK)
+	public static String leftShift(String operand, int n) {
+		// char[] c=operand.toCharArray();
+		// for(int i=n;i<c.length;i++){
+		// c[i-n]=c[i];
+		// }
+		// for(int j=1;j<=n;j++){
+		// c[c.length-j]='0';
+		// }
+		operand = operand.substring(n, operand.length());
+		// System.out.println(operand);
+		return operand;
+	}
+
+	// 9模拟算术右移操作，通过对字符串操作实现。 (OK)
+	public static String rightAriShift(String operand, int n) {
+		char[] c = operand.toCharArray();
+		boolean isPositive = false;
+		if (c[0] == '0')
+			isPositive = true;
+
+		for (int i = c.length - n - 1; i >= 0; i--) {
+			c[i + n] = c[i];
+		}
+		if (isPositive)
+			for (int j = 0; j < n; j++)
+				c[j] = '0';
+		else
+			for (int j = 0; j < n; j++)
+				c[j] = '1';
+		// System.out.println(new String(c));
+		return new String(c);
+	}
+
+	// 10模拟逻辑右移操作(OK)
+	public static String rightLogShift(String operand, int n) {
+		char[] c = operand.toCharArray();
+
+		for (int i = c.length - n - 1; i >= 0; i--) {
+			c[i + n] = c[i];
+		}
+		for (int j = 0; j < n; j++)
+			c[j] = '0';
+		return new String(c);
+	}
+
+	// 11模拟全加器，对两位及进位进行加法运算(OK)
+	public static String fullAdder(char x, char y, char c) {
+		int x1 = x - '0';
+		int y1 = y - '0';
+		int c1 = c - '0';
+		// char up=(char)((x1|y1)&(x1|c1)&(y1|c1)+'0');
+		// char r=(char)((x1^y1^c1)+'0');
+		String result = (x1 ^ y1 ^ c1) + ""
+				+ ((x1 & y1) | (x1 & c1) | (y1 & c1)) + "";
+		// System.out.println(result);
+		return result;
+	}
+
+	// //进行符号扩展
+	// public static String expand(String operand,int length){
+	// assert(length>operand.length());
+	// char[] c=new char[(length-operand.length())];
+	// for (int i=0;i<(length-operand.length());i++){
+	// c[i]='0';
+	// }
+	//
+	// operand=new String(c)+operand;
+	// System.out.println(operand);
+	// return operand;
+	// }
+
+	public static String expand(String s, int length) {
+		String temp = s.substring(0, 1);
+		int t = s.length();
+		for (int i = 0; i < length - t; i++) {
+			s = temp + s;
+		}
+
+		return s;
+	}
+
+	// 12模拟 8 位的先行进位加法器(OK)
+	public static String claAdder(String operand1, String operand2, char c) {
+		// 产生p=xiyi ，q=xi+yi
+		StringBuffer sb1 = new StringBuffer(operand1);
+		operand1 = sb1.reverse().toString();
+		StringBuffer sb2 = new StringBuffer(operand2);
+		operand2 = sb2.reverse().toString();
+		char[] o1 = operand1.toCharArray();
+		char[] o2 = operand2.toCharArray();
+		int[] numbero1 = new int[8];
+		int[] numbero2 = new int[8];
+		// 将字符串转化成数字
+		for (int i = 0; i < 8; i++) {
+			numbero1[i] = o1[i] - '0';
+			numbero2[i] = o2[i] - '0';
+		}
+		int[] and = new int[8];
+		int[] or = new int[8];
+		for (int i = 0; i < 8; i++) {
+			and[i] = (numbero1[i] & numbero2[i]);
+			or[i] = (numbero1[i] | numbero2[i]);
+		}
+
+		String s = null;
+		int cTemp = c - '0';
+
+		char c1 = (char) (((and[0]) | ((or[0]) & cTemp)) + '0');
+		char c2 = (char) (((and[1]) | (or[1] & and[0]) | (or[1] & or[0] & cTemp)) + '0');
+		char c3 = (char) (((and[2]) | (or[2] & and[1])
+				| (or[2] & or[1] & and[0]) | (or[2] & or[1] & or[0] & cTemp)) + '0');
+		char c4 = (char) (((and[3]) | (or[3] & and[2])
+				| (or[3] & or[2] & and[1]) | (or[3] & or[2] & or[1] & and[0]) | (or[3]
+				& or[2] & or[1] & or[0] & cTemp)) + '0');
+		char c5 = (char) (((and[4]) | (or[4] & and[3])
+				| (or[4] & or[3] & and[2]) | (or[4] & or[3] & or[2] & and[1])
+				| (or[4] & or[3] & or[2] & or[1] & and[0]) | (or[4] & or[3]
+				& or[2] & or[1] & or[0] & cTemp)) + '0');
+		char c6 = (char) (((and[5]) | (or[5] & and[4])
+				| (or[5] & or[4] & and[3]) | (or[5] & or[4] & or[3] & and[2])
+				| (or[5] & or[4] & or[3] & or[2] & and[1])
+				| (or[5] & or[4] & or[3] & or[2] & or[1] & and[0]) | (or[5]
+				& or[4] & or[3] & or[2] & or[1] & or[0] & cTemp)) + '0');
+		char c7 = (char) (((and[6]) | (or[6] & and[5])
+				| (or[6] & or[5] & and[4]) | (or[6] & or[5] & or[4] & and[3])
+				| (or[6] & or[5] & or[4] & or[3] & and[2])
+				| (or[6] & or[5] & or[4] & or[3] & or[2] & and[1])
+				| (or[6] & or[5] & or[4] & or[3] & or[2] & or[1] & and[0]) | (or[6]
+				& or[5] & or[4] & or[3] & or[2] & or[1] & or[0] & cTemp)) + '0');
+		char c8 = (char) (((and[7])
+				| (or[7] & and[6])
+				| (or[7] & or[6] & and[5])
+				| (or[7] & or[6] & or[5] & and[4])
+				| (or[7] & or[6] & or[5] & or[4] & and[3])
+				| (or[7] & or[6] & or[5] & or[4] & or[3] & and[2])
+				| (or[7] & or[6] & or[5] & or[4] & or[3] & or[2] & and[1])
+				| (or[7] & or[6] & or[5] & or[4] & or[3] & or[2] & or[1] & and[0]) | (or[7]
+				& or[6] & or[5] & or[4] & or[3] & or[2] & or[1] & or[0] & cTemp)) + '0');
+		s = fullAdder(o1[7], o2[7], c7).substring(0, 1)
+				+ fullAdder(o1[6], o2[6], c6).substring(0, 1)
+				+ fullAdder(o1[5], o2[5], c5).substring(0, 1)
+				+ fullAdder(o1[4], o2[4], c4).substring(0, 1)
+				+ fullAdder(o1[3], o2[3], c3).substring(0, 1)
+				+ fullAdder(o1[2], o2[2], c2).substring(0, 1)
+				+ fullAdder(o1[1], o2[1], c1).substring(0, 1)
+				+ fullAdder(o1[0], o2[0], c).substring(0, 1) + c8;
+
+		return s;
+	}
+
+	// 13模拟部分先行进位加法器(OK)
+	public static String integerAddition(String operand1, String operand2,
+			char c, int length) {
+		// System.out.println(operand2);
+		int l = length;
+		while (l % 8 != 0) {
+			l = l + 1;
+		}
+		operand1 = expand(operand1, l);
+		operand2 = expand(operand2, l);
+		// System.out.println(operand1);
+		// System.out.println(operand2);
+		int n = l / 8; // 这里先只考虑八的倍数的情况
+		String result = "";
+		String tempRes = "";
+
+		while (n != 0) {
+			// String temp1 = operand1.substring((n - 1) * 8, n * 8-1)+
+			// operand1.substring(n * 8-1, n * 8-1);
+			String temp1 = operand1.substring((n - 1) * 8, n * 8);
+			String temp2 = operand2.substring((n - 1) * 8, n * 8);
+			tempRes = claAdder(temp1, temp2, c);
+			// System.out.println(tempRes);
+			c = tempRes.charAt(8);
+			result = tempRes.substring(0, 8) + result;
+			n--;
+		}
+		// 记得这里还要判断是否溢出！！！
+		if ((operand1.charAt(l - length) == '1')
+				&& (operand2.charAt(l - length) == '1')
+				&& (result.charAt(l - length) == '0')) {
+			result = result + "1";
+		} else if ((operand1.charAt(l - length) == '0')
+				&& (operand2.charAt(l - length) == '0')
+				&& (result.charAt(l - length) == '1')) {
+			result = result + "1";
+		} else
+			result = result + "0";
+
+		// System.out.println( result.substring(l-length));
+		return (result.substring(l - length));
+	}
+
+	// 14模拟减法，要求调用 integerAddition 方法来实现(OK)
+	public static String integerSubtraction(String operand1, String operand2,
+			int length) {
+		operand2 = negation(operand2);
+		return integerAddition(operand1, operand2, '1', length);
+	}
+
+	// 15模拟 Booth 乘法，要求调用 integerAddition 方法和 integerSubtraction 方法来实现。 (OK)
+	public static String integerMultiplication(String operand1,
+			String operand2, int length) {
+		// 判断是否有某个数为0的情况
+		if ((operand2.indexOf('1') == -1) || (operand1.indexOf('1') == -1))
+			return expand("0", length);
+
+		// operand1为被乘数，operand2为乘数
+		operand1 = expand(operand1, length);
+		operand2 = expand(operand2, length);
+		// 位数扩展
+		String temp = "";
+		for (int i = 0; i < length; i++) {
+			temp = temp + "0";
+		}
+		// System.out.println(temp);
+		String mul = temp + operand1 + "0";
+		// System.out.println(mul);
+		for (int i = 0; i < length; i++) {
+			String check = mul.substring(mul.length() - 2, mul.length());
+			// System.out.println(check);
+			String operand = mul.substring(0, length);
+			// System.out.println(mul.length());
+			if (check.charAt(1) - check.charAt(0) == 0) {
+				mul = rightAriShift(mul, 1);
+				// System.out.println(mul);
+			} else if (check.charAt(1) - check.charAt(0) == 1) {
+				operand = integerAddition(operand, operand2, '0', length)
+						.substring(0, length);
+
+				mul = operand + mul.substring(length, mul.length());
+				mul = rightAriShift(mul, 1);
+				// System.out.println(mul);
+			} else if (check.charAt(1) - check.charAt(0) == -1) {
+
+				operand = integerSubtraction(operand, operand2, length)
+						.substring(0, length);
+				// System.out.println(operand);
+				mul = operand + mul.substring(length, mul.length());
+				mul = rightAriShift(mul, 1);
+			}
+		}
+		// System.out.println(mul.substring(0,length*2));
+		return mul.substring(0, length * 2);
+	}
+
+	// 16模拟恢复余数除法（OK）
+	public static String integerDivision(String operand1, String operand2,
+			int length) {
+		operand1 = expand(operand1, length);
+		operand2 = expand(operand2, length);
+		// 判断是否有某个数为0的情况
+		if (operand2.indexOf('1') == -1) {
+			if (operand1.indexOf('1') == -1)
+				return "NaN";
+			else
+				return "Exception";
+		}
+		if ((operand1.indexOf('1') == -1) && (operand2.indexOf('1') != -1))
+			return expand("0", 2 * length);
+
+		// 下面是两个数都不为0的情况
+		String remquo = expand(operand1, 2 * length);
+		String divisor = operand2;
+		// System.out.println(remquo);
+		// System.out.println(divisor);
+		int n = length;
+		String temp = divisor.substring(0, 1);
+		// System.out.println(temp);
+		String reminder;
+		String quotient = "";
+		// System.out.println(remquo);
+		while (n > 0) {
+			remquo = leftShift(remquo, 1);
+			reminder = remquo.substring(0, length);
+			// System.out.println(remquo);
+			// 判断是做加法还是减法,同减异加
+			if (reminder.substring(0, 1).equals(temp)) {
+				// System.out.println("sub");
+				reminder = integerSubtraction(reminder, divisor, length);
+				// 判断是否溢出
+				// if (reminder.substring(length,length+1)=="1"){
+				// return"Exception";
+				// }
+				// 判断余数符号是否有改变---是否够减
+				if (reminder.substring(0, 1).equals(temp)) {
+					// enough
+					// System.out.println(reminder);
+					remquo = reminder.substring(0, length)
+							+ remquo.substring(length, remquo.length()) + '1';
+					// System.out.print("yes\n"+remquo);
+				} else {
+					// not enough
+					remquo = remquo + '0';
+					// System.out.print("no\n"+remquo);
+				}
+			} else {
+				// System.out.println("add");
+				// System.out.println(reminder+"  "+divisor);
+				reminder = integerAddition(reminder, divisor, '0', length);
+				// bug：单独调用integerAddition的时候结果是对的，但是reminder里存的数是不对的TUT
+				// if (reminder.substring(length,length+1).equals("1")){
+				// return"Exception";
+				// }
+				// System.out.println(reminder.substring(0,length));
+				// System.out.println(reminder.substring(0,1)+" "+temp);
+				if (reminder.substring(0, 1).equals(temp)) {
+					// not enough
+					// System.out.println("not enough");
+					remquo = remquo + "0";
+					// System.out.print(remquo);
+				} else {
+					// enough
+					// System.out.println("enough");
+					remquo = reminder.substring(0, length)
+							+ remquo.substring(length, remquo.length()) + '1';
+					// System.out.print(remquo);
+				}
+			}
+			n--;
+			// System.out.println();
+		}
+		// System.out.println(remquo.length());
+
+		reminder = remquo.substring(0, length);
+		quotient = remquo.substring(length, 2 * length);
+		// 如果商应为负值，则取反
+		// System.out.println(remind+"  "+quotient);
+		if (!(operand1.substring(0, 1).equals(operand2.substring(0, 1)))) {
+			if (quotient.lastIndexOf('1') != -1) {
+				quotient = negation(quotient.substring(0,
+						quotient.lastIndexOf('1')))
+						+ quotient.substring(quotient.lastIndexOf('1'), length);
+			}
+		}
+		System.out.println(quotient + "  " + reminder);
+		return quotient + reminder;
+	}
+
+	// 17模拟浮点数的加法
+	public static String floatAddition(String operand1, String operand2,
+			int sLength, int eLength, int gLength) {
+		String result = "";
+		String num1, num2;
+		// 判断是否有为0的情况
+		if (operand1.indexOf('1') == -1)
+			result = operand2;
+		else if (operand2.indexOf('1') == -1)
+			result = operand1;
+
+		String e1 = operand1.substring(1, eLength + 1);
+		String e2 = operand2.substring(1, eLength + 1);
+		// System.out.println(e1+"  "+e2);
+
+		if (e1.indexOf('1') == -1) {
+			if (gLength > 0)
+				num1 = "0" + operand1.substring(eLength + 1)
+						+ expand("0", gLength);
+			else
+				num1 = "0" + operand1.substring(eLength + 1);
+		} else {
+			if (gLength > 0)
+				num1 = "1" + operand1.substring(eLength + 1)
+						+ expand("0", gLength);
+			else
+				num1 = "1" + operand1.substring(eLength + 1);
+		}
+
+		if (e2.indexOf('1') == -1) {
+			if (gLength > 0)
+				num2 = "0" + operand2.substring(eLength + 1)
+						+ expand("0", gLength);
+			else
+				num2 = "0" + operand2.substring(eLength + 1);
+		} else {
+			if (gLength > 0)
+				num2 = "1" + operand2.substring(eLength + 1)
+						+ expand("0", gLength);
+			else
+				num2 = "1" + operand2.substring(eLength + 1);
+		}
+
+		// System.out.println(num1+"  "+num2);
+
+		// 对阶
+
+		int enum1 = Integer.parseInt(integerTrueValue(e1));
+		int enum2 = Integer.parseInt(integerTrueValue(e2));
+		if (enum1 < 0)
+			enum1 = (int) Math.pow(2, eLength) + enum1;
+		if (enum2 < 0)
+			enum2 = (int) Math.pow(2, eLength) + enum2;
+		// System.out.println(enum1+"  "+enum2);
+		while (enum1 != enum2) {
+			if (enum1 > enum2) {
+				enum2 = enum2 + 1;
+				num2 = rightLogShift(num2, 1);
+
+				if (num2.indexOf('1') == -1) {
+					// System.out.println( operand1 + "0");
+					return operand1 + "0";
+				}
+			} else {
+				enum1 = enum1 + 1;
+				num1 = rightLogShift(num1, 1);
+				if (num1.indexOf('1') == -1) {
+					// System.out.println( operand2 + "0");
+					return operand2 + "0";
+				}
+			}
+		}
+		// System.out.println(num1+"  "+num2);
+		String out = "0";
+		int e = enum1;
+		String num = "";// 尾数相加的最后结果
+		char c0;// 装最后的符号位
+		// 求和,异号取反加一，同号直接相加
+		if (operand1.charAt(0) != operand2.charAt(0)) {
+			num = integerAddition('0' + num1, '0' + negation(num2), '1',
+					sLength + gLength + 2);
+
+			// 异号时要有进位，否则取反加一
+			if (num.charAt(0) != '1') {
+				if (operand1.charAt(0) == '0')
+					c0 = '1';
+				else
+					c0 = '0';
+				num = num.substring(1, sLength + gLength + 2);
+				num = negation(num.substring(0, num.lastIndexOf('1')))
+						+ num.substring(num.lastIndexOf('1'));
+				// System.out.println(num);
+			} else {
+				// 这里的符号位不太确定
+				c0 = operand1.charAt(0);
+				// System.out.println(c0);
+				num = num.substring(1, sLength + gLength + 2);
+				// System.out.println(num);
+			}
+		} else {
+			c0 = operand1.charAt(0);
+			// System.out.println(num1+"  "+num2);
+			num = integerAddition('0' + num1, '0' + num2, '0', sLength
+					+ gLength + 2);
+			// System.out.println(num);
+			// 判断尾数是否溢出；
+			if (num.charAt(0) == '1') {
+
+				out = "1";
+			} else {
+				num = num.substring(1);
+			}
+		}
+
+		// 判断尾数是否上溢
+		if (num.indexOf('1') == -1) {
+			// System.out.println("over");
+			return expand("0", sLength + eLength + 1);
+		} else {
+			if (num.charAt(0) == '1') {
+				num = rightLogShift(num, 1);
+				e = e + 1;
+				// System.out.println(num);
+				if (e > (int) Math.pow(2, eLength) - 1) {
+					// 阶码上溢，返回无穷
+					// System.out.println("Inf");
+					return (c0
+							+ integerRepresentation(String.valueOf(e), eLength)
+							+ expand("0", sLength) + '1');
+				}
+			}
+		}
+
+		// 是否规格化?
+		while (num.indexOf('1') != 0) {
+			num = leftShift(num, 1) + '0';
+			// System.out.println(num);
+			e = e - 1;
+			if (e < 2 - Math.pow(2, eLength) - 1) {
+				num = rightLogShift(num, 1);
+				break;
+			}
+		}
+		// System.out.println(num);
+		// 下面考虑舍入
+		if (gLength > 0) {
+			if (num.charAt(sLength + 1) == '1') {
+				// System.out.println("yes");
+				num = integerAddition("0" + num.substring(0, sLength + 2),
+						"01", '0', sLength + 2);
+				// System.out.println(num);
+				num = num.substring(1, sLength + 3);
+			} else
+				num = num.substring(1, sLength + 3);
+		}
+
+		// 这个加法写的我要疯了 - - 加油吧TUT
+		String exponent = integerRepresentation(String.valueOf(e), eLength);
+		if (gLength > 0)
+			result = c0 + exponent + num.substring(0, sLength) + out;
+		else
+			result = c0 + exponent + num.substring(1, sLength + 1) + out;
+		// System.out.println(result);
+		return result;
+	}
+
+	// 18模拟浮点数的减法
+	public static String floatSubtraction(String operand1, String operand2,
+			int sLength, int eLength, int gLength) {
+		if (operand2.charAt(0) == '1') {
+			operand2 = '0' + operand2.substring(1);
+		} else
+			operand2 = '1' + operand2.substring(1);
+
+		String result = floatAddition(operand1, operand2, sLength, eLength,
+				gLength);
+
+		return result;
+
+	}
+
+	// 19模拟浮点数的乘法
+	public static String floatMultiplication(String operand1, String operand2,
+			int sLength, int eLength) {
+		String result = "";
+		// 检查是否有为0的数
+		if ((operand1.indexOf('1') == -1) || (operand2.indexOf('1') == -1))
+			result = operand1;
+
+		char c0;// 表示符号
+		if (operand1.charAt(0) == operand2.charAt(0))
+			c0 = '0';
+		else
+			c0 = '1';
+
+		int e1 = Integer.parseInt(integerTrueValue(operand1.substring(1,
+				eLength + 1)));
+		int e2 = Integer.parseInt(integerTrueValue(operand2.substring(1,
+				eLength + 1)));
+
+		if (e1 < 0)
+			e1 = (int) Math.pow(2, eLength) + e1;
+		if (e2 < 0)
+			e2 = (int) Math.pow(2, eLength) + e2;
+
+		int e = e1 + e2 - (int) Math.pow(2, eLength - 1) + 1;
+		// System.out.println(e); 指数计算正确
+
+		if (e > (int) Math.pow(2, eLength) - 1) {
+			// System.out.println("0overflow");
+			return (c0 + expand("1", eLength) + expand("0", sLength));
+		}
+		if (e < (2 - (int) Math.pow(2, eLength - 1))) {
+			// System.out.println("1overflow");
+			return (expand("0", sLength + eLength + 1));
+		}
+
+		String num1;
+		String num2;
+		// 下面是尾数乘法运算
+		if (e1 == (2 - (int) Math.pow(2, eLength - 1)))
+			num1 = '0' + operand1.substring(eLength + 1);
+		else
+			num1 = '1' + operand1.substring(eLength + 1);
+
+		if (e2 == (2 - (int) Math.pow(2, eLength - 1)))
+			num2 = '0' + operand2.substring(eLength + 1);
+		else
+			num2 = '1' + operand2.substring(eLength + 1);
+		String num = expand("0", sLength + 1) + num2;
+
+		int i = 0;
+		while (i <= sLength) {
+			// System.out.println(num);
+			if (num.charAt(num.length() - 1) == '1') {
+				// 相加过程中如果溢出直接舍弃高位
+				// System.out.println(num.substring(0,sLength+1));
+				num = integerAddition("0" + num.substring(0, sLength + 1),
+						"0" + num1, '0', sLength + 2).substring(1, sLength + 1)
+						+ num.substring(sLength, 2 * sLength + 2);
+
+			}
+			num = rightLogShift(num, 1);
+			i++;
+		}
+		// num里存的是含有小数点前两位的结果，要进行规格化
+
+		while (num.charAt(1) != '1') {
+			num = leftShift(num, 1);
+			e = e - 1;
+			// 阶码下溢
+			if (e < (2 - (int) Math.pow(2, eLength - 1))) {
+				// System.out.println("2overflow");
+				return expand("0", 1 + sLength + eLength);
+			}
+		}
+		if (num.charAt(1) == '1') {
+			// 考虑舍入
+			if (num.charAt(sLength + 1) == '1') {
+				num = integerAddition(num.substring(0, sLength + 1), "1", '0',
+						sLength + 1).substring(0, sLength + 1);
+				result = num.substring(2);
+				// num=num.substring(0,sLength)+'1';
+			} else {
+				result = num.substring(2) + '0';
+			}
+		}
+
+		String exponent = integerRepresentation(String.valueOf(e), eLength);
+		// System.out.println(c0+exponent+result.substring(0,sLength));
+		return c0 + exponent + result.substring(0, sLength);
+	}
+
+	// 20模拟浮点数的除法
+	public static String floatDivision(String operand1, String operand2,
+			int sLength, int eLength) {
+		String result = "";
+		if (operand1.indexOf('1') == -1) {
+			if (operand2.indexOf('1') == -1) {
+				result = "NaN";
+			} else {
+				result = operand1;
+			}
+		} else {
+			if (operand2.indexOf('1') == -1) {
+				result = '0' + expand("1", eLength) + expand("0", sLength)
+						+ '0';
+			} else {
+				// 进行正常运算
+				char c0;// 表示符号
+				if (operand1.charAt(0) == operand2.charAt(0))
+					c0 = '0';
+				else
+					c0 = '1';
+				int e1 = Integer.parseInt(integerTrueValue(operand1.substring(
+						1, eLength + 1)));
+				int e2 = Integer.parseInt(integerTrueValue(operand2.substring(
+						1, eLength + 1)));
+
+				if (e1 < 0)
+					e1 = (int) Math.pow(2, eLength) + e1;
+				if (e2 < 0)
+					e2 = (int) Math.pow(2, eLength) + e2;
+
+				int e = e1 - e2 + (int) Math.pow(2, eLength - 1) - 1;
+
+				// 判断阶码是否溢出
+				if (e > (int) Math.pow(2, eLength - 1) - 1) {
+					// System.out.println("0over");
+					return (c0 + expand("1", eLength) + expand("0", sLength));
+				}
+				if (e < (2 - (int) Math.pow(2, eLength - 1))) {
+					// System.out.println("1over");
+					return (expand("0", sLength + eLength + 1));
+				}
+
+				// 下面是尾数除法
+
+				String num1;
+				String num2;
+				if (e1 == (2 - (int) Math.pow(2, eLength - 1)))
+					num1 = '0' + operand1.substring(eLength + 1);
+				else
+					num1 = '1' + operand1.substring(eLength + 1);
+
+				if (e2 == (2 - (int) Math.pow(2, eLength - 1)))
+					num2 = '0' + operand2.substring(eLength + 1);
+				else
+					num2 = '1' + operand2.substring(eLength + 1);
+				String num = num1 + expand("0", sLength + 1);
+				// System.out.println(num1+"  "+num2);
+				int i = 0;
+				int num2value = Integer.parseInt(integerTrueValue(num2));
+				// 当被除数的尾数为10000...时，如果第一次不够减则左移变为000...，结果会出错；e.g
+				// (00110000", "00111000", 4, 3 ) 1/1.5
+				// 够就减不够就加？【先去弄清楚这里的算法
+
+				while (i < sLength + 1) {
+					// 判断够不够减
+					char temp=num2.charAt(0);
+//					int num1value = Integer.parseInt(integerTrueValue( '0'+num.substring(0, sLength + 1)));
+//
+//					if (num1value >= num2value) {
+//						//System.out.println("enough");
+//						num = integerSubtraction('0'+num.substring(0, sLength + 1),'0'+num2, sLength + 2).substring(1,sLength + 2)
+//								+ num.substring(sLength + 1) + '1';
+//						num = leftShift(num, 1);
+//					} else {
+//						// not enough
+//					    //num=integerAddition('0'+num.substring(0,sLength+1),'0'+num2,'0',sLength+2).substring(1,sLength+2)
+//					    //		+num.substring(sLength+1)+'0';
+//						num=num+'0';
+//					    		num = leftShift(num, 1);
+//					}
+//					i++;
+
+//					 [try again!!!]
+					     System.out.println(num);
+					     String remainder;
+//					 if(num.charAt(0)==temp){
+						 remainder = integerSubtraction(num.substring(0, sLength + 1),num2, sLength + 1).substring(0,sLength + 1);
+					      if((num.charAt(0)==temp)||(remainder.indexOf('1')==-1)){
+					    	  //enough
+					    	  num=remainder+num.substring(sLength+1)+'1';
+					      }
+					      else
+					    	  num=num+'0';
+//					 }
+//					 else{
+//						 remainder = integerAddition('0'+num.substring(0, sLength + 1),'0'+num2, '0',sLength + 2).substring(1,sLength + 2); 
+//					     if((remainder.charAt(0)!=temp)||(remainder.indexOf('1')==-1)){
+//					    	 num=num+remainder+num.substring(sLength+1)+'1';
+//					     }
+//					     else
+//					    	 num=num+'0';
+//					 }
+					      num=leftShift(num, 1);
+					      i++;
+				}
+				num = num.substring(sLength + 1);
+				// 对商进行规格化，1.几/1.几只会出现1.几或0.几的结果，考虑最左边是不是1即可
+				if (num.charAt(0) != '1') {
+					num = leftShift(num, 1) + '0';
+					e = e - 1;
+					if (e < (2 - (int) Math.pow(2, eLength) - 1)) {
+						// System.out.println("3over");
+						return expand("0", eLength + sLength + 1);
+					}
+				}
+
+				result = num.substring(1);
+				String exponent = integerRepresentation(String.valueOf(e),
+						eLength);
+				result = c0 + exponent + result;
+			}
+		}
+		System.out.println(result);
+		return result;
+	}
+
+	public static void main(String[] args) {
+		// floatTrueValue("01000011110000000001000010100011", 23,8);
+		// integerTrueValue("11111111111111111111111111111000");
+		// integerMultiplication("1110", "0011", 6);
+		// integerDivision( "1010" ,"0100 ", 4 );
+		// leftShift("00000111",1);
+		// integerAddition ("010101011010","000000000101",'0',11);
+		// integerSubtraction("1011", "0100", 4);
+		// fullAdder('1','1','1');
+		//floatRepresentation("0.667",4, 3);
+		// integerRepresentation("-2",4);
+		// floatAddition("0100101010101101", "0011101011110101", 9, 6, 1);
+		// floatSubtraction("0100100100111010", "0100100100111001", 9, 6, 4);
+		 //floatDivision("00110000", "00111000", 4, 3);
+		// 0 01111110 100 0000 0000 0000 0000 0000
+		// 1 10000101 000 0010 1000 0000 0000 0000
+		// 10111100001111000101001001100100 (right)
+		calculation("0.75/(-65.25)=");
+	}
+}

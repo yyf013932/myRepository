@@ -1,0 +1,30 @@
+package ≤‚ ‘;
+
+import java.util.ArrayList;
+
+public class SimDotCom2{
+	public static void main(String[] args){
+		int NumOfGuess=0;
+		
+		DotComP p1 = new DotComP();
+		
+		int RandNum = (int)(Math.random()*5);
+		
+		SimDotComGame2 NewGame = new SimDotComGame2();
+		ArrayList<String> locations = null;
+		NewGame.setLocations2(locations);
+	    
+		boolean isAlive = true;
+		while(isAlive){
+			String GuessNum = p1.GetUserInput("Enter a number:");
+			String result = NewGame.checkyourself(GuessNum);
+			NumOfGuess++;
+		    
+			if (result.equals("kill")){
+			isAlive=false;
+			System.out.println("You took "+NumOfGuess+" guesses!");
+		    }
+		}
+		
+	}
+}

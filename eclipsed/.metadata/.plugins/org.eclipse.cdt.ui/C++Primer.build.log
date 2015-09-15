@@ -1,0 +1,16 @@
+10:20:54 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+正在构建文件： ../chapter01/1_4_4P15.cpp
+正在调用： GNU C++ 编译器
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"chapter01/1_4_4P15.d" -MT"chapter01/1_4_4P15.d" -o "chapter01/1_4_4P15.o" "../chapter01/1_4_4P15.cpp"
+已结束构建： ../chapter01/1_4_4P15.cpp
+ 
+正在构建目标： C++Primer.exe
+正在调用： MinGW C++ 链接器
+g++  -o "C++Primer.exe"  ./chapter01/1_4_4P15.o   
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../../mingw32/bin/ld.exe: cannot open output file C++Primer.exe: Permission denied
+collect2.exe: error: ld returned 1 exit status
+make: *** [C++Primer.exe] Error 1
+
+10:20:55 Build Finished (took 1s.781ms)
+

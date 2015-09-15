@@ -1,0 +1,36 @@
+package ¾Å¹¬¸ñĞ¡ÓÎÏ·;
+
+public class GameSpace {
+static int steps;
+public int [] space=new int[9];
+public int setspace(int index){
+	if(index>8||index<0)
+		{System.out.println("Wrong!!");return 0;}
+	else if(space[index]!=0)
+		{
+		System.out.println("Wrong input!!\nPlease reinput.\n");
+		return 0;
+		}
+	else if(steps%2==0)
+	   {space[index]=1;steps++;return 1;}
+	else
+		{space[index]=-1;steps++;return 1;}
+}
+public int checkstate(){
+	int [] sum=new int[8];
+	int i,k;
+	for(i=0;i<=2;i++)
+		sum[i]=space[i]+space[i+3]+space[i+6];
+	for(i=3;i<=5;i++){
+		k=3*(i-3);
+		sum[i]=space[k]+space[k+1]+space[k+2];
+	}
+	sum[6]=space[0]+space[4]+space[8];
+	sum[7]=space[2]+space[4]+space[6];
+	for(i=0;i<=7;i++)
+		if(sum[i]==3||sum[i]==-3)
+			return sum[i];
+	return 0;
+}
+}
+

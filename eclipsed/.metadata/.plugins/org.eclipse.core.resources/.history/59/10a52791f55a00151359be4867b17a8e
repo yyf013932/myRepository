@@ -1,0 +1,39 @@
+package test;
+
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import yyf.gui.SwingConsole;
+
+public class BufferedImageTest extends JPanel {
+	
+	public BufferedImageTest(){
+		setSize(1024,768);
+	}
+
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		g.drawImage(getImage(), 0, 0, 1024, 768, null);
+	}
+
+	public static BufferedImage getImage() {
+		BufferedImage image = new BufferedImage(1024, 768,
+				BufferedImage.TYPE_INT_RGB);
+		Graphics g = image.getGraphics();
+		g.setColor(Color.white);
+		g.drawRect(0, 0, 1024, 768);
+//		g.setColor(Color.black);
+//		g.drawRect(10, 10, 20, 20);
+		return image;
+	}
+
+	public static void main(String []args){
+		JFrame frame=new JFrame();
+		frame.setContentPane(new BufferedImageTest());
+		SwingConsole.run(frame,1024,768);
+	}
+}

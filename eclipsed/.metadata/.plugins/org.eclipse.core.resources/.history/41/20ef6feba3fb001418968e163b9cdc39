@@ -1,0 +1,62 @@
+package swr.sxc.zjs.yyf.game;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import javax.imageio.ImageIO;
+
+public class StartWordsPanel extends GamePanel {
+	//实现渐显的alpha参数
+	private float words_alpha;
+	//需要显示的图片或文字
+	private BufferedImage startWords;
+	//图片地址
+	private String wPath = "images/StartPanel/startWords.png";
+	
+	public StartWordsPanel(final GameFrame gameFrame) throws FileNotFoundException, IOException{
+		super(gameFrame);
+		setSize(1100,800);
+		imageReady=false;
+		startWords = ImageIO.read(new FileInputStream(wPath));
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// TODO 自动生成的方法存根
+				for (int i = 0; i < 200; i++) {
+					if ((i / 100) % 2 == 0)
+						words_alpha = (float) i / 100;
+					else
+						words_alpha = (float) (200 - i) / 100;
+					repaint();
+					try {
+						TimeUnit.MILLISECONDS.sleep(20);
+					} catch (InterruptedException e) {
+						// TODO 自动生成的 catch 块
+						e.printStackTrace();
+					}
+				}
+				gameFrame.setPanel(gameFrame.loadingPanel);
+				while(!gameFrame.startPanel.imageReady);
+				gameFrame.setPanel(gameFrame.startPanel);
+				gameFrame.startPanel.player.start();
+				repaint();
+			}
+		}).start();
+	}
+	public void paintComponent(Graphics g){
+		super.paintComponent(g);
+		Graphics2D g2d = (Graphics2D) g;
+		Composite savecm = g2d.getComposite();
+		AlphaComposite alcm = AlphaComposite.getInstance(
+				AlphaComposite.SRC_OVER, words_alpha);
+		g2d.setComposite(alcm);
+		g2d.drawImage(startWords, (getWidth() - startWords.getWidth()) / 2,
+				(getHeight() - startWords.getHeight()) / 2,
+				startWords.getWidth(), startWords.getHeight(), null);
+		g2d.setComposite(savecm);
+	}
+}

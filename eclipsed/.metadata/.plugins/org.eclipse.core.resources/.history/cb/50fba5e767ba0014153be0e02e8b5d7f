@@ -1,0 +1,98 @@
+package 九宫格小游戏;
+
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.*;
+
+import yyf.gui.*;
+
+public class Gamebust {
+	JFrame frame = new JFrame();
+	JButton[] but = new JButton[9];
+	JPanel panel1 = new JPanel();
+	JPanel panel2 = new JPanel();
+	JLabel label = new JLabel("玩家1");
+	ImageIcon image1 = new ImageIcon("D:\\111.jpg");
+	ImageIcon image2 = new ImageIcon("D:\\clicked1.jpg");
+	ImageIcon image3 = new ImageIcon("D:\\clicked2.jpg");
+	HashMap<JButton, Integer> map = new HashMap<JButton, Integer>();
+	GameSpace gamespace = new GameSpace();
+	Player[] players = new Player[2];
+	private int k = 0;
+	String labelText;
+
+	public void startgame() {
+		int state = 0, steps = 0, currentplayer = 1;
+		players[0] = new Player();
+		players[1] = new Player();
+		//初始化按钮
+		for (int i = 0; i < 9; i++) 
+			but[i] = new JButton();		
+		//初始map，每个按钮对应一个值
+		for(int k=0;k<9;k++){
+			map.put(but[k],k);
+		}
+			
+		// 设施按钮属性及添加事件
+		for (int i = 0; i < 9; i++) {
+			but[i].setLayout(new BorderLayout());
+			but[i].setIcon(image1);
+			but[i].addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					// TODO 自动生成的方法存根
+					JButton button = (JButton) e.getSource();
+					button.setEnabled(false);
+					button.setDisabledIcon(image2);
+					if (k++ % 2 == 1)
+						button.setDisabledIcon(image3);
+                    gamespace.setspace(map.get(button));
+                    labelText="玩家"+String.valueOf((k-1)%2+1);
+					if(gamespace.checkstate()==1){
+						for(int m=0;m<9;m++)
+							but[m].setEnabled(false);
+					}
+					label.setText(labelText);
+
+				}
+			});
+		}
+        //创建窗口及添加组件
+		frame.setTitle("九宫格");
+		panel1.setLayout(new GridLayout(3, 3, 0, 0));
+		for (int i1 = 0; i1 < 9; i1++)
+			panel1.add(but[i1]);
+		panel2.add(label);
+		frame.getContentPane().add(panel1);
+		frame.getContentPane().add(BorderLayout.SOUTH, panel2);
+		SwingConsole.run(frame, 500, 500);
+
+
+//		System.out.println("Please input a name for player 1:\n");
+//		players[0].getname();
+//		System.out.println("Please input a name for player 2:\n");
+//		players[1].getname();
+//		System.out
+//				.println("Player 1 will take the first step.\nLet's fight!!\n");
+//
+//
+//		while (state == 0) {
+//			currentplayer = steps % 2 + 1;
+//			
+//			state = gamespace.checkstate();
+//		}
+//		System.out.println("Player " + currentplayer + " "
+//				+ players[currentplayer - 1].name + " wins the game.");
+	}
+
+	public static void main(String[] args) {
+		Gamebust game = new Gamebust();
+		game.startgame();
+	}
+}

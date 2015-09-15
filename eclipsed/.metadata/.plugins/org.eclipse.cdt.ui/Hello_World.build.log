@@ -1,0 +1,8 @@
+21:41:48 **** Incremental Build of configuration Debug for project Hello_World ****
+Info: Internal Builder is used for build
+g++ -o Hello_World.exe hello_world.o 
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../libmingw32.a(main.o):(.text.startup+0xa7): undefined reference to `WinMain@16'
+collect2.exe: error: ld returned 1 exit status
+
+21:41:49 Build Finished (took 703ms)
+

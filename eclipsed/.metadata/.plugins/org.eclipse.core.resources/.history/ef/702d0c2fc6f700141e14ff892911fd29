@@ -1,0 +1,87 @@
+package swr.sxc.zjs.yyf.game;
+
+import java.awt.AlphaComposite;
+import java.awt.Composite;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.util.concurrent.TimeUnit;
+
+import javax.swing.JPanel;
+
+import swr.sxc.zjs.yyf.tools.MusicPlayer;
+
+public class GamePanel extends JPanel {
+	// 实现阴影渐变的参数
+	protected float alpha;
+	private Thread changThread;
+
+	// 保存一个Frame的引用
+	protected GameFrame gameFrame;
+
+	// 音乐播放器
+	protected MusicPlayer player;
+
+	// 改变alpha的值
+	public void alphaChange(int arg) {
+		if (changThread != null)
+			changThread.stop();
+
+		// alpha减小（背景出现）
+		if (arg == 0)
+			changThread = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					alpha = 1;
+					for (int i = 100; i > 0; i--) {
+						alpha = (float) i / 100;
+						try {
+							TimeUnit.MILLISECONDS.sleep(5);
+							repaint();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			});
+		// alpha变大（背景消失）
+		else {
+			changThread = new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					alpha = 0;
+					for (int i = 0; i < 100; i++) {
+						alpha = (float) i / 100;
+						try {
+							TimeUnit.MILLISECONDS.sleep(5);
+							repaint();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			});
+		}
+		changThread.start();
+	}
+
+	protected void changeShadow(Graphics g) {
+		Graphics2D g2d = (Graphics2D) g;
+		Composite savecm = g2d.getComposite();
+		AlphaComposite alp = AlphaComposite.getInstance(
+				AlphaComposite.SRC_OVER, alpha);
+		g2d.setComposite(alp);
+		g2d.fillRect(0, 0, getWidth(), getHeight());
+		g2d.setComposite(savecm);
+	}
+
+	public GamePanel(GameFrame gameFrame) {
+		this.gameFrame = gameFrame;
+		setSize(1100, 800);
+	}
+
+	public GamePanel() {
+
+	}
+}

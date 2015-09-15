@@ -1,0 +1,13 @@
+package swr.sxc.zjs.yyf.game;
+
+import java.awt.image.BufferedImage;
+
+import swr.sxc.zjs.yyf.tools.MusicPlayer;
+
+public class IntroductionPanel extends GamePanel {
+	public IntroductionPanel(GameFrame gameFrame) {
+		// TODO 自动生成的构造函数存根
+		super(gameFrame);
+	}
+
+}

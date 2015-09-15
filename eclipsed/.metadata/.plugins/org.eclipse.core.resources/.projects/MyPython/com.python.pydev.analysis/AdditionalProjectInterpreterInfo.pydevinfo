@@ -1,0 +1,19 @@
+-- VERSION_4
+-- START DISKCACHE_2
+D:\JAVA\eclipsed\.metadata\.plugins\org.eclipse.core.resources\.projects\MyPython\com.python.pydev.analysis\v2_indexcache
+myPython|1442324676520230000|D:\JAVA\eclipsed\MyPython\myPython.py
+-- END DISKCACHE
+-- START DICTIONARY
+2
+2=solution
+1=myPython
+-- END DICTIONARY
+-- START TREE 1
+2
+so|1|so!11@
+sol|1|solution!9@
+-- END TREE
+-- START TREE 2
+1
+sol|1|solve!2&10@
+-- END TREE

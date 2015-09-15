@@ -1,0 +1,20 @@
+package basestructure;
+
+import java.util.Random;
+
+public class AVLTreeTest {
+
+	public static void main(String[] args) {
+		// TODO 自动生成的方法存根
+		AVLTree<Integer> tree = new AVLTree<>();
+		int i=1000;
+		long a=System.currentTimeMillis();
+		for(int j=0;j<i;j++){
+			tree.insert(new Random().nextInt(i));
+		}
+		long b=System.currentTimeMillis();
+		System.out.println("Cost "+(b-a)+"ms"+"\n----t/nlogn="+(i*Math.log(i))/(b-a));
+	}
+	
+
+}

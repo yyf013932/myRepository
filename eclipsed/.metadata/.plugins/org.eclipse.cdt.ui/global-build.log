@@ -1,0 +1,152 @@
+21:41:11 **** 重新构建 of configuration Debug for project Hello_World ****
+Info: Internal Builder is used for build
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -o hello_world.o "..\\hello_world.cc" 
+g++ -o Hello_World.exe hello_world.o 
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../libmingw32.a(main.o):(.text.startup+0xa7): undefined reference to `WinMain@16'
+collect2.exe: error: ld returned 1 exit status
+21:41:48 **** Incremental Build of configuration Debug for project Hello_World ****
+Info: Internal Builder is used for build
+g++ -o Hello_World.exe hello_world.o 
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../libmingw32.a(main.o):(.text.startup+0xa7): undefined reference to `WinMain@16'
+collect2.exe: error: ld returned 1 exit status
+09:18:25 **** 重新构建 of configuration Debug for project TestC ****
+Info: Internal Builder is used for build
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\TestC.o" "..\\src\\TestC.cpp" 
+g++ -o TestC.exe "src\\TestC.o" 
+Info: Nothing to build for TestC
+09:20:30 **** Incremental Build of configuration Debug for project TestC ****
+Info: Internal Builder is used for build
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\TestC.o" "..\\src\\TestC.cpp" 
+g++ -o TestC.exe "src\\TestC.o" 
+09:39:49 **** 重新构建 of configuration Debug for project C++Primer ****
+Info: Internal Builder is used for build
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -o "chapter01\\1_4_4P15.o" "..\\chapter01\\1_4_4P15.cpp" 
+g++ -o C++Primer.exe "chapter01\\1_4_4P15.o" 
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../libmingw32.a(main.o):(.text.startup+0xa7): undefined reference to `WinMain@16'
+collect2.exe: error: ld returned 1 exit status
+09:40:58 **** Incremental Build of configuration Debug for project C++Primer ****
+Info: Internal Builder is used for build
+g++ -o C++Primer.exe "chapter01\\1_4_4P15.o" 
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../libmingw32.a(main.o):(.text.startup+0xa7): undefined reference to `WinMain@16'
+collect2.exe: error: ld returned 1 exit status
+09:41:25 **** Incremental Build of configuration Debug for project C++Primer ****
+Info: Internal Builder is used for build
+g++ -o C++Primer.exe "chapter01\\1_4_4P15.o" 
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../libmingw32.a(main.o):(.text.startup+0xa7): undefined reference to `WinMain@16'
+collect2.exe: error: ld returned 1 exit status
+09:45:19 **** Incremental Build of configuration Debug for project C++Primer ****
+Info: Internal Builder is used for build
+g++ -o C++Primer.exe "chapter01\\1_4_4P15.o" 
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../libmingw32.a(main.o):(.text.startup+0xa7): undefined reference to `WinMain@16'
+collect2.exe: error: ld returned 1 exit status
+09:46:37 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+正在构建目标： C++Primer.exe
+正在调用： MinGW C++ 链接器
+g++  -o "C++Primer.exe"  ./chapter01/1_4_4P15.o   
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../libmingw32.a(main.o):(.text.startup+0xa7): undefined reference to `WinMain@16'
+collect2.exe: error: ld returned 1 exit status
+make: *** [C++Primer.exe] Error 1
+09:47:24 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+正在构建文件： ../chapter01/1_4_4P15.cpp
+正在调用： GNU C++ 编译器
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"chapter01/1_4_4P15.d" -MT"chapter01/1_4_4P15.d" -o "chapter01/1_4_4P15.o" "../chapter01/1_4_4P15.cpp"
+已结束构建： ../chapter01/1_4_4P15.cpp
+ 
+正在构建目标： C++Primer.exe
+正在调用： MinGW C++ 链接器
+g++  -o "C++Primer.exe"  ./chapter01/1_4_4P15.o   
+已结束构建目标： C++Primer.exe
+ 
+09:47:32 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+make: Nothing to be done for `all'.
+09:47:44 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+make: Nothing to be done for `all'.
+09:47:51 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+正在构建文件： ../chapter01/1_4_4P15.cpp
+正在调用： GNU C++ 编译器
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"chapter01/1_4_4P15.d" -MT"chapter01/1_4_4P15.d" -o "chapter01/1_4_4P15.o" "../chapter01/1_4_4P15.cpp"
+已结束构建： ../chapter01/1_4_4P15.cpp
+ 
+正在构建目标： C++Primer.exe
+正在调用： MinGW C++ 链接器
+g++  -o "C++Primer.exe"  ./chapter01/1_4_4P15.o   
+已结束构建目标： C++Primer.exe
+ 
+09:48:41 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+正在构建文件： ../chapter01/1_4_4P15.cpp
+正在调用： GNU C++ 编译器
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"chapter01/1_4_4P15.d" -MT"chapter01/1_4_4P15.d" -o "chapter01/1_4_4P15.o" "../chapter01/1_4_4P15.cpp"
+已结束构建： ../chapter01/1_4_4P15.cpp
+ 
+正在构建目标： C++Primer.exe
+正在调用： MinGW C++ 链接器
+g++  -o "C++Primer.exe"  ./chapter01/1_4_4P15.o   
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../../mingw32/bin/ld.exe: cannot open output file C++Primer.exe: Permission denied
+collect2.exe: error: ld returned 1 exit status
+make: *** [C++Primer.exe] Error 1
+09:48:48 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+正在构建目标： C++Primer.exe
+正在调用： MinGW C++ 链接器
+g++  -o "C++Primer.exe"  ./chapter01/1_4_4P15.o   
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../../mingw32/bin/ld.exe: cannot open output file C++Primer.exe: Permission denied
+collect2.exe: error: ld returned 1 exit status
+make: *** [C++Primer.exe] Error 1
+10:04:24 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+正在构建文件： ../chapter01/1_4_4P15.cpp
+正在调用： GNU C++ 编译器
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"chapter01/1_4_4P15.d" -MT"chapter01/1_4_4P15.d" -o "chapter01/1_4_4P15.o" "../chapter01/1_4_4P15.cpp"
+已结束构建： ../chapter01/1_4_4P15.cpp
+ 
+正在构建目标： C++Primer.exe
+正在调用： MinGW C++ 链接器
+g++  -o "C++Primer.exe"  ./chapter01/1_4_4P15.o   
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../../mingw32/bin/ld.exe: cannot open output file C++Primer.exe: Permission denied
+collect2.exe: error: ld returned 1 exit status
+make: *** [C++Primer.exe] Error 1
+10:05:30 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+正在构建文件： ../chapter01/1_4_4P15.cpp
+正在调用： GNU C++ 编译器
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"chapter01/1_4_4P15.d" -MT"chapter01/1_4_4P15.d" -o "chapter01/1_4_4P15.o" "../chapter01/1_4_4P15.cpp"
+已结束构建： ../chapter01/1_4_4P15.cpp
+ 
+正在构建目标： C++Primer.exe
+正在调用： MinGW C++ 链接器
+g++  -o "C++Primer.exe"  ./chapter01/1_4_4P15.o   
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../../mingw32/bin/ld.exe: cannot open output file C++Primer.exe: Permission denied
+collect2.exe: error: ld returned 1 exit status
+make: *** [C++Primer.exe] Error 1
+10:19:38 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+正在构建文件： ../chapter01/1_4_4P15.cpp
+正在调用： GNU C++ 编译器
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"chapter01/1_4_4P15.d" -MT"chapter01/1_4_4P15.d" -o "chapter01/1_4_4P15.o" "../chapter01/1_4_4P15.cpp"
+已结束构建： ../chapter01/1_4_4P15.cpp
+ 
+正在构建目标： C++Primer.exe
+正在调用： MinGW C++ 链接器
+g++  -o "C++Primer.exe"  ./chapter01/1_4_4P15.o   
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../../mingw32/bin/ld.exe: cannot open output file C++Primer.exe: Permission denied
+collect2.exe: error: ld returned 1 exit status
+make: *** [C++Primer.exe] Error 1
+10:20:54 **** Incremental Build of configuration Debug for project C++Primer ****
+make all 
+正在构建文件： ../chapter01/1_4_4P15.cpp
+正在调用： GNU C++ 编译器
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"chapter01/1_4_4P15.d" -MT"chapter01/1_4_4P15.d" -o "chapter01/1_4_4P15.o" "../chapter01/1_4_4P15.cpp"
+已结束构建： ../chapter01/1_4_4P15.cpp
+ 
+正在构建目标： C++Primer.exe
+正在调用： MinGW C++ 链接器
+g++  -o "C++Primer.exe"  ./chapter01/1_4_4P15.o   
+d:/minigw/bin/../lib/gcc/mingw32/4.8.1/../../../../mingw32/bin/ld.exe: cannot open output file C++Primer.exe: Permission denied
+collect2.exe: error: ld returned 1 exit status
+make: *** [C++Primer.exe] Error 1

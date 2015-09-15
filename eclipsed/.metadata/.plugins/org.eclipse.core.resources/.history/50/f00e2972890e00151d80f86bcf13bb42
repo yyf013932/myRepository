@@ -1,0 +1,200 @@
+import static org.junit.Assert.*;
+
+import org.junit.Before;
+import org.junit.Test;
+
+public class ALUTest {
+
+	ALU alu = new ALU();
+
+	@Before
+	public void setUp() throws Exception {
+	}
+
+	@Test
+	public void testCalculation() {
+		String str1 = alu.calculation("25+16="), str2 = alu
+				.calculation("2.5+(-2)"), str3 = alu.calculation("25-(-5)"), str4 = alu
+				.calculation("15.5-1.5="), str5 = alu.calculation("(-8)*2="), str6 = alu
+				.calculation("0.75*(-65.25)="), str7 = alu
+				.calculation("169/26="), str8 = alu
+				.calculation("0.75/(-65.25)=");
+		assertEquals("41", str1);
+		assertEquals("0.5", str2);
+		assertEquals("30", str3);
+		assertEquals("14.0", str4);
+		assertEquals("-16", str5);
+		assertEquals("-48.9375", str6);
+		assertEquals("6", str7);
+		assertEquals("-0.01149425283074379", str8);
+		System.out.println(alu.calculation("-6/(4)="));
+	}
+
+	@Test
+	public void testIntegerRepresentation() {
+		String str1 = alu.integerRepresentation("12", 6), str2 = alu
+				.integerRepresentation("-2", 4);
+		assertEquals("001100", str1);
+		assertEquals("1110", str2);
+	}
+
+	@Test
+	public void testFloatRepresentation() {
+		String str1 = alu.floatRepresentation("384.13", 23, 8), str2 = alu
+				.floatRepresentation("7.75", 3, 4), str3 = alu
+				.floatRepresentation("1.5", 23, 8);
+		assertEquals("01000011110000000001000010100100", str1);
+		assertEquals("01010000", str2);
+		assertEquals("00111111110000000000000000000000", str3);
+	}
+
+	@Test
+	public void testIeee754() {
+		String str1 = alu.ieee754("384.13", 32), str2 = alu.ieee754("-1.5", 32);
+		assertEquals("01000011110000000001000010100100", str1);
+		assertEquals("10111111110000000000000000000000", str2);
+	}
+
+	@Test
+	public void testIntegerTrueValue() {
+		String str1 = alu.integerTrueValue("1001010"), str2 = alu
+				.integerTrueValue("0111001"), str3 = alu
+				.integerTrueValue("0000000");
+		assertEquals("-54", str1);
+		assertEquals("57", str2);
+		assertEquals("0", str3);
+	}
+
+	@Test
+	public void testFloatTrueValue() {
+		String str = alu.floatTrueValue("01000011110000000001000010100011", 23,
+				8);
+		double d = new Double(str);
+		assertEquals(384.13, d, 0.01);
+	}
+
+	@Test
+	public void testNegation() {
+		String str1 = alu.negation("1001010"), str2 = alu.negation("0000000");
+		assertEquals("0110101", str1);
+		assertEquals("1111111", str2);
+	}
+
+	@Test
+	public void testLeftShift() {
+		String str1 = alu.leftShift("1001010", 2), str2 = alu.leftShift(
+				"1001010", 5);
+		assertEquals("0101000", str1);
+		assertEquals("1000000", str2);
+	}
+
+	@Test
+	public void testRightAriShift() {
+		String str1 = alu.rightAriShift("1001010", 2), str2 = alu
+				.rightAriShift("0101010", 5);
+		assertEquals("1110010", str1);
+		assertEquals("0000001", str2);
+	}
+
+	@Test
+	public void testRightLogShift() {
+		String str1 = alu.rightLogShift("1001010", 2), str2 = alu
+				.rightLogShift("0101010", 5);
+		assertEquals("0010010", str1);
+		assertEquals("0000001", str2);
+	}
+
+	@Test
+	public void testFullAdder() {
+		String str1 = alu.fullAdder('1', '0', '1'), str2 = alu.fullAdder('0',
+				'0', '0');
+		assertEquals("01", str1);
+		assertEquals("00", str2);
+	}
+
+	@Test
+	public void testClaAdder() {
+		String str1 = alu.claAdder("10010101", "01001100", '1'), str2 = alu
+				.claAdder("01001101", "11100010", '0');
+		assertEquals("111000100", str1);
+		assertEquals("001011111", str2);
+	}
+
+	@Test
+	public void testIntegerAddition() {
+		String str1 = alu.integerAddition("00011", "00101", '1', 7), str2 = alu
+				.integerAddition("1011", "1010", '0', 5), str3 = alu
+				.integerAddition("01000", "01", '0', 5);
+		assertEquals("00010010", str1);
+		assertEquals("101010", str2);
+		assertEquals("010010", str3);
+	}
+
+	@Test
+	public void testIntegerSubtraction() {
+		String str1 = alu.integerSubtraction("0011", "0101", 5), str2 = alu
+				.integerSubtraction("1011", "0100", 4);
+		assertEquals("111100", str1);
+		assertEquals("01111", str2);
+	}
+
+	@Test
+	public void testIntegerMultiplication() {
+		String str1 = alu.integerMultiplication("0010", "0011", 4), str2 = alu
+				.integerMultiplication("1110", "0011", 4), str3 = alu
+				.integerMultiplication("1110", "0011", 6);
+		assertEquals("00000110", str1);
+		assertEquals("11111010", str2);
+		assertEquals("111111111010", str3);
+	}
+
+	@Test
+	public void testIntegerDivision() {
+		String str1 = alu.integerDivision("0110", "0100", 4), str2 = alu
+				.integerDivision("1010", "0100", 6);
+		assertEquals("00010010", str1);
+		assertEquals("111111111110", str2);
+	}
+
+	@Test
+	public void testFloatAddition() {
+		String str1 = alu.floatAddition("00111111010000000000000000000000",
+				"11000010100000101000000000000000", 23, 8, 0), str2 = alu
+				.floatAddition("0100101010101101", "0011101011110101", 9, 6, 0), str3 = alu
+				.floatAddition("0100101010101101", "0011101011110101", 9, 6, 1);
+		assertEquals("110000101000000100000000000000000", str1);
+		assertEquals("01001010101011110", str2);
+		assertEquals("01001010101100000", str3);
+	}
+
+	@Test
+	public void testFloatSubtraction() {
+		String str1 = alu.floatSubtraction("00111111010000000000000000000000",
+				"01000010100000101000000000000000", 23, 8, 0);
+		assertEquals("110000101000000100000000000000000", str1);
+	}
+
+	@Test
+	public void testFloatMultiplication() {
+		String str1 = alu.floatMultiplication(
+				"00111111000000000000000000000000",
+				"00111110111000000000000000000000", 23, 8), str2 = alu
+				.floatMultiplication("00111111010000000000000000000000",
+						"11000010100000101000000000000000", 23, 8);
+		assertEquals("00111110011000000000000000000000", str1);
+		assertEquals("11000010010000111100000000000000", str2);
+	}
+
+	@Test
+	public void testFloatDivision() {
+		String str1 = alu.floatDivision("00111110111000000000000000000000",
+				"00111111000000000000000000000000", 23, 8), str2 = alu
+				.floatDivision("00111111010000000000000000000000",
+						"11000010100000101000000000000000", 23, 8), str3 = alu
+				.floatDivision("00110000", "00111000", 4, 3);
+		assertEquals("00111111011000000000000000000000", str1);
+		assertEquals("10111100001111000101001001100100", str2);
+		assertEquals("00100100", str3);
+	}
+
+}

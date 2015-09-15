@@ -1,0 +1,81 @@
+package swr.sxc.zjs.yyf.game;
+
+import java.awt.Container;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import javax.swing.JPanel;
+
+public class GameFrame extends MyFrame {
+	//开始界面
+	private StartPanel startPanel;
+	//物品栏
+	private Inventory inventory;
+	//当前面板
+	private GamePanel currentPanel;
+
+	// 每次设置面板时改变当前面板
+	public void setPanel(JPanel contentPane) {
+		if (contentPane instanceof GamePanel)
+			currentPanel = (GamePanel) contentPane;
+		super.setPanel(contentPane);
+	}
+
+	// 初始化游戏
+	private void initial() throws FileNotFoundException, IOException {
+		startPanel = new StartPanel(this);
+	}
+
+	// 开始游戏
+	public void startGame() throws FileNotFoundException, IOException {
+		initial();
+		setPanel(new IntroductionPanel(this));
+		run();
+	}
+
+	// 保存游戏
+	public void saveGame() {
+		try {
+			ObjectOutputStream ob = new ObjectOutputStream(
+					new FileOutputStream("save/save.ser"));
+			ob.writeObject(currentPanel);
+			ob.close();
+		} catch (FileNotFoundException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+	}
+
+	// 加载游戏
+	public void loadGame() {
+		try {
+			ObjectInputStream ob = new ObjectInputStream(new FileInputStream(
+					"save/save.ser"));
+			currentPanel = (GamePanel) ob.readObject();
+			setPanel(currentPanel);
+			ob.close();
+		} catch (FileNotFoundException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+	}
+	
+	public static void main(String []args) throws FileNotFoundException, IOException{
+		GameFrame gf=new GameFrame();
+		gf.startGame();
+	}
+
+}

@@ -1,0 +1,28 @@
+package edu.nju.model.po;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import static edu.nju.model.po.StatisticPO.*;
+
+public class WinRateRecords {
+	public static void read() {
+		try {
+			Scanner sc = new Scanner(new File(SaveFile.WINRATE));
+			int i = 0;
+			String[] tem;
+			while (sc.hasNextLine()) {
+				tem = sc.nextLine().split(" ");
+				level[i] = tem[0];
+				wins[i] = new Integer(tem[1]);
+				sum[i] = new Integer(tem[2]);
+				winrate[i] = new Double(tem[3]);
+
+			}
+		} catch (FileNotFoundException e) {
+			// TODO 自动生成的 catch 块
+			e.printStackTrace();
+		}
+	}
+
+}

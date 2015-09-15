@@ -1,0 +1,13 @@
+public class Test2 {
+
+	public static void main(String[] args) {
+		// TODO 自动生成的方法存根
+		ALU alu = new ALU();
+		String[][] str = new String[][] { { "1010", "0010", "4" }};
+		for (String[] tem : str) {
+			System.out.println(alu.integerDivision(tem[0], tem[1], new Integer(
+					tem[2])));
+		}
+		System.out.println(alu.calculation("-8/-1="));
+	}
+}
